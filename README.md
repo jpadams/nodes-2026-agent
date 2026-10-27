@@ -24,21 +24,32 @@ The guided walkthrough lives at **<website URL>**.
 
 ## Prerequisites
 
-- [neo4j-cli](https://neo4j.sh): `curl -sSfL https://neo4j.sh/install.sh | bash` (or `brew install neo4j-labs/tap/neo4j-cli`, or `npm install -g @neo4j-labs/cli`)
+- [neo4j-cli](https://neo4j.sh): `curl -sSfL https://neo4j.sh/install.sh | bash` on macOS / Linux, or `irm https://neo4j.sh/install.ps1 | iex` in Windows PowerShell (then restart the terminal). Homebrew and npm also work: see neo4j.sh.
 - An Aura account (sign up with the NODES 2026 link from the walkthrough), plus an Aura API key stored with:
 
 ```sh
 neo4j-cli credential aura-client add --name nodes --env <path-to-downloaded-credentials-file>
-neo4j-cli aura organization list
-neo4j-cli aura project list --organization-id <org-id>
-neo4j-cli aura workspace use <org-id>/<project-id>
 ```
+
+  Your coding agent sets the Aura workspace (organization and project) in the first agent step below.
 
 - Agent skills: `neo4j-cli skill install`
 
 ## Agent instructions
 
 Coding agents: follow these steps in order. Write commands need `--rw`. Prefer `--format toon` for reads.
+
+**First, set the Aura workspace.** List the organization/project workspaces the user's API key can see:
+
+```sh
+neo4j-cli aura workspace list --format toon
+```
+
+If there's exactly one, select it. If there are several, **ask the user** which one to use, and don't pick for them. If there are none, or the command fails with an auth error, the API key from Prerequisites isn't stored correctly: have the user re-run `neo4j-cli credential aura-client add`.
+
+```sh
+neo4j-cli aura workspace use <organization-id>/<project-id> --rw
+```
 
 0. **Check for an existing Free instance first.** Aura allows one Free instance per user, and a *paused* Free instance still counts. `instance list` doesn't show the type, so `get` each instance:
 
