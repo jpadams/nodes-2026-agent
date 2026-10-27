@@ -28,7 +28,13 @@ The guided walkthrough lives at **<website URL>**.
 - An Aura account (sign up with the NODES 2026 link from the walkthrough), plus an Aura API key stored with:
 
 ```sh
-neo4j-cli credential aura-client add --name nodes --env <path-to-downloaded-credentials-file>
+# macOS / Linux: a fresh credential name each time, made the default
+N=nodes-$(date +%s) && neo4j-cli credential aura-client add --name $N --env <path-to-downloaded-credentials-file> && neo4j-cli credential aura-client use $N
+```
+
+```powershell
+# Windows PowerShell
+$N="nodes-$([DateTimeOffset]::Now.ToUnixTimeSeconds())"; neo4j-cli credential aura-client add --name $N --env <path-to-downloaded-credentials-file>; if ($?) { neo4j-cli credential aura-client use $N }
 ```
 
   Your coding agent sets the Aura workspace (organization and project) in the first agent step below.
