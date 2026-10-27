@@ -1,0 +1,497 @@
+sessionId,entityId,entityLabel
+1216235,concept:agentic ai,Concept
+1216235,concept:cypher,Concept
+1216235,concept:embeddings,Concept
+1216235,concept:graph traversal,Concept
+1216235,concept:graphrag,Concept
+1216235,concept:multi-hop reasoning,Concept
+1216235,concept:retrieval-augmented generation,Concept
+1216235,concept:vector search,Concept
+1226968,concept:context-aware forecasting,Concept
+1226968,concept:graph memory,Concept
+1226968,concept:graph-based retrieval,Concept
+1226968,concept:graph-powered ai agents,Concept
+1226968,concept:knowledge graph,Concept
+1226968,domain:retail,Domain
+1227950,concept:agentic systems,Concept
+1227950,concept:semantic drift detection,Concept
+1227950,technology:semvec ai,Technology
+1230313,concept:assisted intelligent dialogue,Concept
+1230313,concept:dynamic metadata extraction,Concept
+1230313,concept:graphrag,Concept
+1230313,concept:intelligent probing,Concept
+1230313,concept:multimodal retrieval,Concept
+1230313,concept:retrieval augmented generation,Concept
+1230313,domain:customer support,Domain
+1230313,organization:cisco,Organization
+1231968,concept:ai agent,Concept
+1231968,concept:graph database,Concept
+1231968,domain:biomedical research,Domain
+1231968,organization:d&a medlabs,Organization
+1232539,concept:full-text search,Concept
+1232539,concept:graph traversal,Concept
+1232539,concept:tax law knowledge graph,Concept
+1232539,domain:tax law,Domain
+1232539,organization:cercle des fiscalistes,Organization
+1232539,technology:mcp,Technology
+1233890,concept:graphrag,Concept
+1233890,concept:temporal validity,Concept
+1233890,domain:financial regulation,Domain
+1233890,organization:rbi,Organization
+1234608,concept:face recognition,Concept
+1234608,technology:deepface,Technology
+1234608,technology:neo4j vector search,Technology
+1235432,concept:entity resolution,Concept
+1235432,concept:human-in-the-loop validation,Concept
+1235432,concept:intelligence architecture,Concept
+1235432,concept:knowledge graph,Concept
+1235432,concept:osint,Concept
+1235432,domain:criminal investigations,Domain
+1235516,concept:knowledge graph,Concept
+1235516,concept:llm reasoning,Concept
+1235516,concept:semantic models,Concept
+1235516,technology:cypher,Technology
+1235516,technology:databricks genie,Technology
+1235516,technology:semantic model inspector,Technology
+1235516,technology:snowflake cortex analyst,Technology
+1235538,concept:graph schema design,Concept
+1235538,concept:graph traversal,Concept
+1235538,concept:grounded retrieval,Concept
+1235538,concept:knowledge graphs as context memory,Concept
+1235538,domain:fashion,Domain
+1235697,concept:cypher traversal,Concept
+1235697,concept:embeddings,Concept
+1235697,concept:graph retrieval,Concept
+1235697,concept:graph schema design,Concept
+1235697,concept:hybrid retrieval,Concept
+1235697,concept:semantic search,Concept
+1236973,concept:entity resolution,Concept
+1236973,concept:graphrag,Concept
+1236973,domain:sports sponsorship,Domain
+1236973,organization:leadsponsor,Organization
+1237197,concept:entity recognition,Concept
+1237197,concept:inferencing,Concept
+1237197,concept:knowledge graph,Concept
+1237197,concept:narrative,Concept
+1237197,concept:ontology design,Concept
+1237197,concept:story world,Concept
+1237197,organization:cogsolo,Organization
+1238598,concept:knowledge graph,Concept
+1238598,domain:healthcare,Domain
+1238598,organization:raras,Organization
+1241910,concept:fastrp embeddings,Concept
+1241910,concept:graph-aware recommendations,Concept
+1241910,concept:negative sampling,Concept
+1241910,concept:platt calibration,Concept
+1241910,technology:neo4j gds,Technology
+1241910,technology:random forest,Technology
+1246418,concept:agent memory,Concept
+1246418,concept:causality,Concept
+1246418,concept:knowledge graph,Concept
+1246418,concept:temporality,Concept
+1246418,domain:supply chain,Domain
+1246418,domain:wealth management,Domain
+1246418,organization:motif,Organization
+1246418,technology:llm,Technology
+1246595,concept:agent memory,Concept
+1246595,concept:context graph,Concept
+1246595,concept:graphrag,Concept
+1246595,concept:semantic retrieval,Concept
+1249123,concept:data generation,Concept
+1249123,concept:query validation,Concept
+1249123,concept:text-to-cypher,Concept
+1249981,concept:agentic ai,Concept
+1249981,concept:ai agent,Concept
+1249981,concept:context graph,Concept
+1249981,concept:knowledge graph,Concept
+1249981,technology:mastra,Technology
+1249981,technology:neo4j aura,Technology
+1249981,technology:neo4j mcp server,Technology
+1250371,concept:context-aware retrieval,Concept
+1250371,concept:graphrag,Concept
+1250371,concept:knowledge graph,Concept
+1250371,concept:retrieval-augmented generation,Concept
+1250371,concept:vector search,Concept
+1251194,concept:impact analysis,Concept
+1251194,concept:knowledge graph,Concept
+1251194,concept:lineage,Concept
+1251194,technology:databricks,Technology
+1251505,concept:confidence-based decoding,Concept
+1251505,concept:grammar constraints,Concept
+1251505,concept:schema constraints,Concept
+1251505,concept:structured filtering,Concept
+1251505,concept:test-time strategies,Concept
+1251505,concept:text-to-cypher,Concept
+1251556,concept:agentic decision tracing,Concept
+1251556,concept:graph-native explainability,Concept
+1251556,technology:a2a,Technology
+1251556,technology:cypher,Technology
+1251556,technology:mcp,Technology
+1251556,technology:neo4j property graph,Technology
+1251736,concept:entity resolution,Concept
+1251736,concept:graphrag,Concept
+1251736,concept:real-time knowledge graphs,Concept
+1251736,concept:relationship deduplication,Concept
+1251736,concept:schema evolution,Concept
+1251736,technology:amazon bedrock,Technology
+1251736,technology:amazon msk,Technology
+1251736,technology:apache flink,Technology
+1251736,technology:aws,Technology
+1251736,technology:cypher,Technology
+1252227,concept:conversation ingest,Concept
+1252227,concept:entity resolution,Concept
+1252227,concept:idempotency,Concept
+1252227,concept:knowledge graph,Concept
+1252227,concept:provenance,Concept
+1252227,organization:ai coding agents,Organization
+1252227,technology:chatgpt,Technology
+1252227,technology:cognee,Technology
+1252227,technology:mcp,Technology
+1252233,concept:graph-rag,Concept
+1252233,concept:retrieval-augmented generation,Concept
+1252233,concept:text-to-cypher,Concept
+1253762,concept:access control,Concept
+1253762,concept:agent memory,Concept
+1253762,concept:context stacking,Concept
+1253762,concept:knowledge graph,Concept
+1253762,concept:provenance,Concept
+1254647,concept:context graph,Concept
+1254647,concept:context-adaptive agents,Concept
+1254647,domain:transactional systems,Domain
+1254647,technology:cypher,Technology
+1254647,technology:go,Technology
+1256914,concept:graph validation,Concept
+1256914,concept:human approval,Concept
+1256914,concept:knowledge graph,Concept
+1256914,concept:neurosymbolic integration,Concept
+1256914,concept:ontology management,Concept
+1256914,concept:planning agent,Concept
+1256914,concept:schema introspection,Concept
+1256914,concept:write cypher,Concept
+1256914,technology:cypher mcp server,Technology
+1256914,technology:llm,Technology
+1256914,technology:neo4j mcp,Technology
+1257113,concept:graph database,Concept
+1257113,concept:multi-agent system,Concept
+1257113,concept:natural language interface,Concept
+1257113,domain:urban planning,Domain
+1257113,organization:station f,Organization
+1257113,technology:langgraph,Technology
+1257113,technology:neo4j aura,Technology
+1257113,technology:openai api,Technology
+1257892,concept:explainability,Concept
+1257892,concept:knowledge graph embedding,Concept
+1257892,concept:link prediction,Concept
+1257892,concept:post-hoc explainability,Concept
+1257892,domain:biomedical,Domain
+1257892,technology:ampligraph,Technology
+1258495,concept:customer intelligence graph,Concept
+1258495,concept:evidence-based generation,Concept
+1258495,concept:graphrag,Concept
+1258495,concept:mcp,Concept
+1260442,concept:graph-first approach,Concept
+1260442,concept:regulatory content authoring,Concept
+1260442,domain:pharmaceutical industry,Domain
+1260442,organization:vivpro,Organization
+1260442,technology:regain,Technology
+1260442,technology:ria search tools,Technology
+1260905,concept:graph algorithmic reasoning,Concept
+1260905,concept:graph reasoning,Concept
+1260905,concept:question answering,Concept
+1260905,technology:graph data science (gds),Technology
+1261004,concept:binary quantization,Concept
+1261004,concept:quantization,Concept
+1261004,concept:rescoring,Concept
+1261004,concept:scalar quantization,Concept
+1261004,technology:neo4j vector index,Technology
+1261255,concept:agentic loop,Concept
+1261255,concept:data governance,Concept
+1261255,concept:graph object model,Concept
+1261255,concept:hypothesis validation,Concept
+1261255,organization:adobe,Organization
+1261255,technology:neo4j aura,Technology
+1261852,concept:ontology management,Concept
+1261852,organization:deutsche bahn,Organization
+1261852,technology:grapheditor,Technology
+1261852,technology:rdf 1.2,Technology
+1261894,concept:entity resolution,Concept
+1261894,concept:temporal graph,Concept
+1261894,domain:financial data,Domain
+1261894,organization:sec edgar,Organization
+1262348,concept:clustering,Concept
+1262348,concept:geospatial graph visualization,Concept
+1262348,concept:graph overlays,Concept
+1262348,concept:map-native rendering,Concept
+1262348,concept:semantic zooming,Concept
+1262348,concept:synchronized side-by-side experiences,Concept
+1262348,technology:leaflet,Technology
+1262348,technology:maplibre,Technology
+1262411,concept:agent memory,Concept
+1262411,concept:agent orchestration,Concept
+1262411,concept:knowledge graph,Concept
+1262411,concept:provenance,Concept
+1262411,concept:retrieval,Concept
+1262411,concept:self-improvement,Concept
+1262570,concept:dynamic queries,Concept
+1262570,concept:ordinary differential equation models,Concept
+1262570,domain:biomedical,Domain
+1262805,concept:agentic ai,Concept
+1262805,concept:context layer,Concept
+1262805,concept:knowledge graph,Concept
+1262805,concept:legacy reverse engineering,Concept
+1262805,concept:lineage,Concept
+1262805,organization:fortune 500 financial services company,Organization
+1262805,technology:cypher,Technology
+1262805,technology:informatica,Technology
+1262805,technology:mcp,Technology
+1262805,technology:sybase,Technology
+1263445,concept:graph algorithms,Concept
+1263445,concept:graph-native architecture,Concept
+1263445,concept:impact analysis,Concept
+1263445,concept:lineage traversal,Concept
+1263445,concept:semantic layer,Concept
+1263445,concept:semantic reasoning,Concept
+1263445,organization:colrows,Organization
+1263460,concept:human-in-the-loop etl,Concept
+1263460,concept:modular experimental workflows,Concept
+1263460,concept:ontological structure,Concept
+1263460,domain:life science laboratories,Domain
+1263460,technology:biograph,Technology
+1263492,concept:agentic rag,Concept
+1263492,concept:entity resolution,Concept
+1263492,concept:graphrag,Concept
+1263492,concept:master data management,Concept
+1263492,concept:ontology-guided graph federation,Concept
+1263492,concept:provenance,Concept
+1263492,domain:enterprise and financial settings,Domain
+1263492,domain:financial extraction,Domain
+1263506,concept:cypher,Concept
+1263506,concept:graphrag,Concept
+1263506,concept:knowledge graph,Concept
+1263506,concept:multi-agent ai,Concept
+1263506,concept:ontology,Concept
+1263506,concept:ontology-driven framework,Concept
+1263506,concept:process intelligence,Concept
+1263506,concept:process mining,Concept
+1263506,concept:semantic layer,Concept
+1263506,concept:semantic querying,Concept
+1263506,technology:bpmn,Technology
+1263506,technology:rdf,Technology
+1263608,concept:agent memory,Concept
+1263608,concept:hybrid retrieval,Concept
+1263608,concept:temporal graph memory,Concept
+1263608,technology:python,Technology
+1263735,concept:graphrag,Concept
+1263735,concept:temporal knowledge graphs,Concept
+1263735,concept:temporal reasoning,Concept
+1263735,domain:cybersecurity,Domain
+1263735,technology:google cloud run,Technology
+1263735,technology:langchain,Technology
+1264007,concept:graphrag,Concept
+1264007,domain:wildlife conservation,Domain
+1264007,technology:langgraph,Technology
+1264039,concept:graph visualizations,Concept
+1264039,technology:ai agent,Technology
+1264039,technology:neo4j instance,Technology
+1264039,technology:neo4j nvl skill,Technology
+1264049,concept:graph context,Concept
+1264049,concept:knowledge graph,Concept
+1264049,technology:laravel,Technology
+1264049,technology:mcp,Technology
+1264049,technology:neo4j boost,Technology
+1264075,concept:agent memory,Concept
+1264075,concept:graphrag,Concept
+1264075,concept:knowledge graph diff,Concept
+1264075,concept:rag pipelines,Concept
+1264095,concept:agentic ai,Concept
+1264095,concept:data cleansing,Concept
+1264095,concept:data enrichment,Concept
+1264095,concept:entity disambiguation,Concept
+1264095,concept:graph analytics,Concept
+1264095,technology:dbpedia,Technology
+1264095,technology:mcp,Technology
+1264095,technology:wikidata,Technology
+1264351,concept:cypher,Concept
+1264351,concept:graph rag,Concept
+1264351,concept:knowledge graph,Concept
+1264351,concept:vector search,Concept
+1264351,technology:large language models,Technology
+1264369,concept:graphrag,Concept
+1264369,concept:text-to-cypher,Concept
+1264369,domain:biodiversity,Domain
+1264369,technology:cypher,Technology
+1264369,technology:gbif occurrence api,Technology
+1264369,technology:neo4j-based knowledge graph,Technology
+1264372,concept:entity extraction,Concept
+1264372,concept:graph modeling,Concept
+1264372,concept:graphrag,Concept
+1264372,concept:temporal reasoning,Concept
+1264372,domain:healthcare,Domain
+1264419,concept:graphrag,Concept
+1264419,concept:knowledge graph,Concept
+1264419,concept:llm grounding,Concept
+1264419,domain:cybersecurity,Domain
+1264419,technology:python,Technology
+1264512,concept:agentic workflows,Concept
+1264512,concept:knowledge graph,Concept
+1264512,concept:multi-agent deduction,Concept
+1264512,domain:criminal analysis,Domain
+1264512,domain:healthcare,Domain
+1264512,domain:legal,Domain
+1264512,organization:bcnn,Organization
+1264512,technology:large language models,Technology
+1264512,technology:open-source models,Technology
+1264540,concept:change data capture,Concept
+1264540,concept:human-in-the-loop governance,Concept
+1264540,concept:knowledge graph,Concept
+1264540,concept:routing,Concept
+1264540,concept:vector resolution,Concept
+1264540,domain:public healthcare,Domain
+1264540,technology:cypher,Technology
+1264540,technology:geen.ai,Technology
+1264540,technology:graphrag,Technology
+1264657,concept:agentic verification,Concept
+1264657,concept:biological knowledge graph,Concept
+1264657,concept:graph neural networks,Concept
+1264657,concept:temporal reasoning,Concept
+1264657,domain:drug safety,Domain
+1264657,domain:precision medicine,Domain
+1264657,domain:rare disease research,Domain
+1264662,concept:knowledge graph,Concept
+1264662,concept:legacy systems,Concept
+1264662,concept:metadata graph,Concept
+1264662,concept:transformation graph,Concept
+1264773,concept:graphrag,Concept
+1264773,concept:knowledge graph,Concept
+1264773,concept:llm,Concept
+1264773,concept:neuro-symbolic ai,Concept
+1264773,concept:ontologies,Concept
+1264870,concept:entity resolution,Concept
+1264870,concept:ontology management,Concept
+1264870,concept:spatial graphrag,Concept
+1264870,concept:spatial reasoning,Concept
+1264896,concept:agent memory,Concept
+1264896,concept:graphrag,Concept
+1264896,concept:knowledge graph,Concept
+1264896,organization:neo4j startup program,Organization
+1264896,technology:cypher,Technology
+1264896,technology:mcp,Technology
+1264896,technology:neo4j aura,Technology
+1264939,concept:entity resolution,Concept
+1264939,technology:neo4j document intelligence,Technology
+1264976,concept:context graph,Concept
+1264976,concept:cypher,Concept
+1264976,concept:entity and relationship extraction,Concept
+1264976,concept:graphrag,Concept
+1264976,concept:multi-hop graph traversal,Concept
+1264976,concept:vector indexes,Concept
+1264976,concept:vector rag,Concept
+1264976,organization:aws quick suite,Organization
+1265002,concept:agent memory,Concept
+1265002,concept:agentic workflows,Concept
+1265002,concept:graph traversal,Concept
+1265002,concept:knowledge graph,Concept
+1265008,concept:graph analytics,Concept
+1265008,concept:graphhealth,Concept
+1265008,concept:network surveys,Concept
+1265008,domain:public health,Domain
+1265008,organization:respnd-mi / mpx nyc,Organization
+1265022,concept:ai memory,Concept
+1265022,concept:graph retrieval,Concept
+1265022,concept:hybrid search,Concept
+1265022,technology:mcp,Technology
+1265022,technology:neo4j vector indexes,Technology
+1265032,concept:ci gating,Concept
+1265032,concept:eval lineage,Concept
+1265032,concept:evals as a graph,Concept
+1265032,concept:llm-as-judge evals,Concept
+1265048,concept:agent memory,Concept
+1265048,concept:graph security,Concept
+1265048,concept:ontology validation,Concept
+1265048,concept:threat modeling,Concept
+1265056,concept:audit trail,Concept
+1265056,concept:concurrency control,Concept
+1265056,concept:entity resolution,Concept
+1265056,concept:point-in-time consistency,Concept
+1265056,domain:financial services,Domain
+1265056,organization:terralens,Organization
+1266340,concept:graph analytics,Concept
+1266340,concept:lakehouse,Concept
+1266340,technology:microsoft fabric,Technology
+1266349,technology:apache spark,Technology
+1266349,technology:neo4j spark connector,Technology
+1266363,concept:database constraint management,Concept
+1266363,concept:exactly-once semantics,Concept
+1266363,concept:streaming data,Concept
+1266363,technology:apache kafka,Technology
+1266363,technology:neo4j driver,Technology
+1266363,technology:neo4j kafka connector,Technology
+1266374,concept:infrastructure as code,Concept
+1266374,technology:neo4j aura,Technology
+1266374,technology:terraform,Technology
+1266896,concept:schema discovery,Concept
+1266896,concept:schema enforcement,Concept
+1266896,technology:graph type,Technology
+1267240,concept:knowledge graph,Concept
+1267240,technology:graphql federation,Technology
+1267240,technology:linear,Technology
+1267240,technology:mcp,Technology
+1267240,technology:slack,Technology
+1269904,concept:medallion architecture,Concept
+1269904,concept:relational databases,Concept
+1269904,domain:music analytics,Domain
+1269904,technology:neo4j virtual graphs,Technology
+1269904,technology:spring data neo4j,Technology
+1273468,concept:agent skills,Concept
+1273468,concept:ai-powered applications,Concept
+1273468,concept:graph analytics,Concept
+1273468,technology:aura,Technology
+1273468,technology:mcp,Technology
+1273468,technology:python,Technology
+1288703,concept:agent memory,Concept
+1288703,technology:mcp,Technology
+1288703,technology:neo4j agent memory system,Technology
+1288703,technology:vercel ai sdk,Technology
+1290179,concept:ai,Concept
+1290179,concept:interconnected data apps,Concept
+1290179,concept:relationship-driven intelligence,Concept
+1303322,concept:knowledge graph,Concept
+1303322,domain:healthcare,Domain
+1303322,organization:ava,Organization
+1303322,organization:tokio marine hcc international,Organization
+1303322,organization:u.s. department of veterans affairs,Organization
+1303322,technology:neo4j aura,Technology
+1303322,technology:neo4j aura agent,Technology
+1303322,technology:neo4j mcp server,Technology
+1303322,technology:snowflake cortex,Technology
+1308570,concept:agentic systems,Concept
+1308570,concept:ai engineering,Concept
+1308570,concept:context,Concept
+1308570,concept:data,Concept
+1356181,concept:property encryption,Concept
+1356181,technology:neo4j driver,Technology
+1360215,concept:agentic workflows,Concept
+1360215,concept:document intelligence,Concept
+1360215,concept:entity resolution,Concept
+1360215,technology:neo4j aura,Technology
+1367092,concept:decision modeling,Concept
+1367092,domain:transit,Domain
+1367092,technology:jev,Technology
+1367949,concept:entity resolution,Concept
+1367949,concept:graphrag,Concept
+1367949,concept:typed decision models,Concept
+1367949,technology:cypher,Technology
+1369730,concept:graphrag,Concept
+1369730,concept:ontology management,Concept
+1369730,technology:aura,Technology
+1370499,concept:context-aware ai,Concept
+1370499,concept:graphrag,Concept
+1370499,domain:women's safety,Domain
+1370499,organization:creating wings,Organization
+1372081,concept:graph database,Concept
+1372081,concept:graph relationships,Concept
+1372081,concept:graph-powered applications,Concept
+1372081,technology:eloquent,Technology
+1372081,technology:laravel,Technology
+1372081,technology:neo4j laravel,Technology
+1372081,technology:query builder,Technology

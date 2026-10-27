@@ -1,0 +1,54 @@
+{
+  "name": "nodes-2026-agent",
+  "description": "Answers questions about NODES 2026 sessions, speakers, tracks, topics, and schedule.",
+  "system_prompt": "You are a helpful guide to the NODES 2026 conference. Answer using only the graph. Always include session titles, speakers, and times when relevant. Write times exactly as the tools return them, like \"Wed 11 Nov, 18:00 UTC\". When you write Cypher, return Slot.displayTime for times, and use Slot.startTime only to filter and sort. Some sessions are broadcast in several time slots; list them all. If the graph doesn't contain the answer, say so.",
+  "tools": [
+    {
+      "type": "text2cypher",
+      "name": "ask-nodes-graph",
+      "description": "Answer questions about NODES 2026 by generating Cypher. Graph: (:Speaker)-[:PRESENTS]->(:Session)-[:HAS_SLOT]->(:Slot {startTime, endTime, durationMinutes, displayTime}), (:Session)-[:IN_TRACK]->(:Track), (:Session)-[:HAS_TOPIC]->(:Topic), (:Session)-[:HAS_USE_CASE]->(:UseCase), (:Session)-[:MENTIONS]->(:Technology|Concept|Organization|Domain). Session has title, description, levels and formats (lists). Slot.startTime and endTime are UTC datetimes for filtering and sorting; return Slot.displayTime to show a time."
+    },
+    {
+      "type": "cypherTemplate",
+      "name": "sessions-by-speaker",
+      "description": "List the sessions a speaker is presenting, with their time slots, by speaker name or part of it. Accents are optional: Eifrem matches Eifrém.",
+      "config": {
+        "template": "WITH [w IN split(reduce(q = toLower($name), c IN ['\\\\', '+', '-', '!', '(', ')', '{', '}', '[', ']', '^', '\"', '~', '*', '?', ':', '/', '&', '|'] | replace(q, c, ' ')), ' ') WHERE w <> ''] AS words WHERE size(words) > 0 CALL db.index.fulltext.queryNodes('speaker_names', reduce(q = '', w IN words | q + CASE q WHEN '' THEN '' ELSE ' AND ' END + '(' + w + ' OR ' + w + '*)')) YIELD node AS sp, score MATCH (sp)-[:PRESENTS]->(s:Session) OPTIONAL MATCH (s)-[:HAS_SLOT]->(sl:Slot) WITH sp, score, s, sl ORDER BY sl.startTime WITH sp, score, s, collect(sl.displayTime) AS times RETURN sp.name AS speaker, s.title AS title, times ORDER BY score DESC, title LIMIT 25",
+        "parameters": [
+          {
+            "name": "name",
+            "data_type": "string",
+            "description": "Speaker name or part of it."
+          }
+        ]
+      }
+    },
+    {
+      "type": "cypherTemplate",
+      "name": "sessions-about",
+      "description": "List sessions tagged with or mentioning a topic, technology, concept, company, or industry, by (partial) name, e.g. GraphRAG, LangChain, Agent Memory, Adobe, healthcare.",
+      "config": {
+        "template": "MATCH (s:Session)-[:HAS_TOPIC|HAS_USE_CASE|MENTIONS]->(x) WHERE toLower(x.name) CONTAINS toLower($name) WITH DISTINCT s OPTIONAL MATCH (s)<-[:PRESENTS]-(sp:Speaker) OPTIONAL MATCH (s)-[:HAS_SLOT]->(sl:Slot) WITH s, sp, sl ORDER BY sl.startTime WITH s, collect(DISTINCT sp.name) AS speakers, collect(DISTINCT sl.displayTime) AS times, min(sl.startTime) AS first RETURN s.title AS title, speakers, times ORDER BY first LIMIT 25",
+        "parameters": [
+          {
+            "name": "name",
+            "data_type": "string",
+            "description": "Topic, technology, concept, organization, or domain name, or part of it."
+          }
+        ]
+      }
+    },
+    {
+      "type": "similaritySearch",
+      "name": "find-sessions",
+      "description": "Semantic search over session titles, speakers, and descriptions to find sessions about a topic.",
+      "config": {
+        "provider": "openai",
+        "model": "text-embedding-3-small",
+        "index": "session_chunk_embeddings",
+        "top_k": 5,
+        "post_processing_cypher": "MATCH (node)-[:FROM_DOCUMENT]->(s:Session) OPTIONAL MATCH (s)<-[:PRESENTS]-(sp:Speaker) OPTIONAL MATCH (s)-[:HAS_SLOT]->(sl:Slot) WITH s, score, sp, sl ORDER BY sl.startTime WITH s, score, collect(DISTINCT sp.name) AS speakers, collect(DISTINCT sl.displayTime) AS times RETURN s.title AS title, speakers, times, s.description AS description, score ORDER BY score DESC"
+      }
+    }
+  ]
+}

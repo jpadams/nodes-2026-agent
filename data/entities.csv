@@ -1,0 +1,351 @@
+id,label,name
+concept:access control,Concept,Access Control
+concept:agent memory,Concept,Agent Memory
+concept:agent orchestration,Concept,Agent Orchestration
+concept:agent skills,Concept,Agent Skills
+concept:agentic ai,Concept,Agentic AI
+concept:agentic decision tracing,Concept,Agentic Decision Tracing
+concept:agentic loop,Concept,Agentic Loop
+concept:agentic rag,Concept,Agentic RAG
+concept:agentic systems,Concept,Agentic Systems
+concept:agentic verification,Concept,Agentic Verification
+concept:agentic workflows,Concept,Agentic Workflows
+concept:ai,Concept,AI
+concept:ai agent,Concept,AI Agent
+concept:ai engineering,Concept,AI Engineering
+concept:ai memory,Concept,AI Memory
+concept:ai-powered applications,Concept,AI-Powered Applications
+concept:assisted intelligent dialogue,Concept,Assisted Intelligent Dialogue
+concept:audit trail,Concept,Audit Trail
+concept:binary quantization,Concept,Binary Quantization
+concept:biological knowledge graph,Concept,Biological Knowledge Graph
+concept:causality,Concept,Causality
+concept:change data capture,Concept,Change Data Capture
+concept:ci gating,Concept,CI Gating
+concept:clustering,Concept,Clustering
+concept:concurrency control,Concept,Concurrency Control
+concept:confidence-based decoding,Concept,Confidence-Based Decoding
+concept:context,Concept,Context
+concept:context graph,Concept,Context Graph
+concept:context layer,Concept,Context Layer
+concept:context stacking,Concept,Context Stacking
+concept:context-adaptive agents,Concept,Context-Adaptive Agents
+concept:context-aware ai,Concept,Context-Aware AI
+concept:context-aware forecasting,Concept,Context-Aware Forecasting
+concept:context-aware retrieval,Concept,Context-Aware Retrieval
+concept:conversation ingest,Concept,Conversation Ingest
+concept:customer intelligence graph,Concept,Customer Intelligence Graph
+concept:cypher,Concept,Cypher
+concept:cypher traversal,Concept,Cypher Traversal
+concept:data,Concept,Data
+concept:data cleansing,Concept,Data Cleansing
+concept:data enrichment,Concept,Data Enrichment
+concept:data generation,Concept,Data Generation
+concept:data governance,Concept,Data Governance
+concept:database constraint management,Concept,Database Constraint Management
+concept:decision modeling,Concept,Decision Modeling
+concept:document intelligence,Concept,Document Intelligence
+concept:dynamic metadata extraction,Concept,Dynamic Metadata Extraction
+concept:dynamic queries,Concept,Dynamic Queries
+concept:embeddings,Concept,Embeddings
+concept:entity and relationship extraction,Concept,Entity and Relationship Extraction
+concept:entity disambiguation,Concept,Entity Disambiguation
+concept:entity extraction,Concept,Entity Extraction
+concept:entity recognition,Concept,Entity Recognition
+concept:entity resolution,Concept,Entity Resolution
+concept:eval lineage,Concept,Eval Lineage
+concept:evals as a graph,Concept,Evals as a Graph
+concept:evidence-based generation,Concept,Evidence-Based Generation
+concept:exactly-once semantics,Concept,Exactly-Once Semantics
+concept:explainability,Concept,Explainability
+concept:face recognition,Concept,Face Recognition
+concept:fastrp embeddings,Concept,FastRP Embeddings
+concept:full-text search,Concept,Full-Text Search
+concept:geospatial graph visualization,Concept,Geospatial Graph Visualization
+concept:grammar constraints,Concept,Grammar Constraints
+concept:graph algorithmic reasoning,Concept,Graph Algorithmic Reasoning
+concept:graph algorithms,Concept,Graph Algorithms
+concept:graph analytics,Concept,Graph Analytics
+concept:graph context,Concept,Graph Context
+concept:graph database,Concept,Graph Database
+concept:graph memory,Concept,Graph Memory
+concept:graph modeling,Concept,Graph Modeling
+concept:graph neural networks,Concept,Graph Neural Networks
+concept:graph object model,Concept,Graph Object Model
+concept:graph overlays,Concept,Graph Overlays
+concept:graph rag,Concept,Graph RAG
+concept:graph reasoning,Concept,Graph Reasoning
+concept:graph relationships,Concept,Graph Relationships
+concept:graph retrieval,Concept,Graph Retrieval
+concept:graph schema design,Concept,Graph Schema Design
+concept:graph security,Concept,Graph Security
+concept:graph traversal,Concept,Graph Traversal
+concept:graph validation,Concept,Graph Validation
+concept:graph visualizations,Concept,Graph Visualizations
+concept:graph-aware recommendations,Concept,Graph-Aware Recommendations
+concept:graph-based retrieval,Concept,Graph-Based Retrieval
+concept:graph-first approach,Concept,Graph-First Approach
+concept:graph-native architecture,Concept,Graph-Native Architecture
+concept:graph-native explainability,Concept,Graph-Native Explainability
+concept:graph-powered ai agents,Concept,Graph-Powered AI Agents
+concept:graph-powered applications,Concept,Graph-Powered Applications
+concept:graph-rag,Concept,Graph-RAG
+concept:graphhealth,Concept,GraphHealth
+concept:graphrag,Concept,GraphRAG
+concept:grounded retrieval,Concept,Grounded Retrieval
+concept:human approval,Concept,Human Approval
+concept:human-in-the-loop etl,Concept,Human-in-the-loop ETL
+concept:human-in-the-loop governance,Concept,Human-in-the-loop Governance
+concept:human-in-the-loop validation,Concept,Human-in-the-Loop Validation
+concept:hybrid retrieval,Concept,Hybrid Retrieval
+concept:hybrid search,Concept,Hybrid Search
+concept:hypothesis validation,Concept,Hypothesis Validation
+concept:idempotency,Concept,Idempotency
+concept:impact analysis,Concept,Impact Analysis
+concept:inferencing,Concept,Inferencing
+concept:infrastructure as code,Concept,Infrastructure as Code
+concept:intelligence architecture,Concept,Intelligence Architecture
+concept:intelligent probing,Concept,Intelligent Probing
+concept:interconnected data apps,Concept,Interconnected Data Apps
+concept:knowledge graph,Concept,Knowledge Graph
+concept:knowledge graph diff,Concept,Knowledge Graph Diff
+concept:knowledge graph embedding,Concept,Knowledge Graph Embedding
+concept:knowledge graphs as context memory,Concept,Knowledge Graphs as Context Memory
+concept:lakehouse,Concept,Lakehouse
+concept:legacy reverse engineering,Concept,Legacy Reverse Engineering
+concept:legacy systems,Concept,Legacy Systems
+concept:lineage,Concept,Lineage
+concept:lineage traversal,Concept,Lineage Traversal
+concept:link prediction,Concept,Link Prediction
+concept:llm,Concept,LLM
+concept:llm grounding,Concept,LLM Grounding
+concept:llm reasoning,Concept,LLM Reasoning
+concept:llm-as-judge evals,Concept,LLM-as-judge Evals
+concept:map-native rendering,Concept,Map-Native Rendering
+concept:master data management,Concept,Master Data Management
+concept:mcp,Concept,MCP
+concept:medallion architecture,Concept,Medallion Architecture
+concept:metadata graph,Concept,Metadata Graph
+concept:modular experimental workflows,Concept,Modular Experimental Workflows
+concept:multi-agent ai,Concept,Multi-Agent AI
+concept:multi-agent deduction,Concept,Multi-Agent Deduction
+concept:multi-agent system,Concept,Multi-Agent System
+concept:multi-hop graph traversal,Concept,Multi-hop Graph Traversal
+concept:multi-hop reasoning,Concept,Multi-Hop Reasoning
+concept:multimodal retrieval,Concept,Multimodal Retrieval
+concept:narrative,Concept,Narrative
+concept:natural language interface,Concept,Natural Language Interface
+concept:negative sampling,Concept,Negative Sampling
+concept:network surveys,Concept,Network Surveys
+concept:neuro-symbolic ai,Concept,Neuro-Symbolic AI
+concept:neurosymbolic integration,Concept,Neurosymbolic Integration
+concept:ontological structure,Concept,Ontological Structure
+concept:ontologies,Concept,Ontologies
+concept:ontology,Concept,Ontology
+concept:ontology design,Concept,Ontology Design
+concept:ontology management,Concept,Ontology Management
+concept:ontology validation,Concept,Ontology Validation
+concept:ontology-driven framework,Concept,Ontology-Driven Framework
+concept:ontology-guided graph federation,Concept,Ontology-Guided Graph Federation
+concept:ordinary differential equation models,Concept,Ordinary Differential Equation Models
+concept:osint,Concept,OSINT
+concept:planning agent,Concept,Planning Agent
+concept:platt calibration,Concept,Platt Calibration
+concept:point-in-time consistency,Concept,Point-in-Time Consistency
+concept:post-hoc explainability,Concept,Post-hoc Explainability
+concept:process intelligence,Concept,Process Intelligence
+concept:process mining,Concept,Process Mining
+concept:property encryption,Concept,Property Encryption
+concept:provenance,Concept,Provenance
+concept:quantization,Concept,Quantization
+concept:query validation,Concept,Query Validation
+concept:question answering,Concept,Question Answering
+concept:rag pipelines,Concept,RAG Pipelines
+concept:real-time knowledge graphs,Concept,Real-Time Knowledge Graphs
+concept:regulatory content authoring,Concept,Regulatory Content Authoring
+concept:relational databases,Concept,Relational Databases
+concept:relationship deduplication,Concept,Relationship Deduplication
+concept:relationship-driven intelligence,Concept,Relationship-Driven Intelligence
+concept:rescoring,Concept,Rescoring
+concept:retrieval,Concept,Retrieval
+concept:retrieval augmented generation,Concept,Retrieval Augmented Generation
+concept:retrieval-augmented generation,Concept,Retrieval-Augmented Generation
+concept:routing,Concept,Routing
+concept:scalar quantization,Concept,Scalar Quantization
+concept:schema constraints,Concept,Schema Constraints
+concept:schema discovery,Concept,Schema Discovery
+concept:schema enforcement,Concept,Schema Enforcement
+concept:schema evolution,Concept,Schema Evolution
+concept:schema introspection,Concept,Schema Introspection
+concept:self-improvement,Concept,Self-Improvement
+concept:semantic drift detection,Concept,Semantic Drift Detection
+concept:semantic layer,Concept,Semantic Layer
+concept:semantic models,Concept,Semantic Models
+concept:semantic querying,Concept,Semantic Querying
+concept:semantic reasoning,Concept,Semantic Reasoning
+concept:semantic retrieval,Concept,Semantic Retrieval
+concept:semantic search,Concept,Semantic Search
+concept:semantic zooming,Concept,Semantic Zooming
+concept:spatial graphrag,Concept,Spatial GraphRAG
+concept:spatial reasoning,Concept,Spatial Reasoning
+concept:story world,Concept,Story World
+concept:streaming data,Concept,Streaming Data
+concept:structured filtering,Concept,Structured Filtering
+concept:synchronized side-by-side experiences,Concept,Synchronized Side-by-Side Experiences
+concept:tax law knowledge graph,Concept,Tax Law Knowledge Graph
+concept:temporal graph,Concept,Temporal Graph
+concept:temporal graph memory,Concept,Temporal Graph Memory
+concept:temporal knowledge graphs,Concept,Temporal Knowledge Graphs
+concept:temporal reasoning,Concept,Temporal Reasoning
+concept:temporal validity,Concept,Temporal Validity
+concept:temporality,Concept,Temporality
+concept:test-time strategies,Concept,Test-Time Strategies
+concept:text-to-cypher,Concept,Text-to-Cypher
+concept:threat modeling,Concept,Threat Modeling
+concept:transformation graph,Concept,Transformation Graph
+concept:typed decision models,Concept,Typed Decision Models
+concept:vector indexes,Concept,Vector Indexes
+concept:vector rag,Concept,Vector RAG
+concept:vector resolution,Concept,Vector Resolution
+concept:vector search,Concept,Vector Search
+concept:write cypher,Concept,Write Cypher
+domain:biodiversity,Domain,biodiversity
+domain:biomedical,Domain,Biomedical
+domain:biomedical research,Domain,biomedical research
+domain:criminal analysis,Domain,Criminal Analysis
+domain:criminal investigations,Domain,criminal investigations
+domain:customer support,Domain,Customer Support
+domain:cybersecurity,Domain,cybersecurity
+domain:drug safety,Domain,drug safety
+domain:enterprise and financial settings,Domain,enterprise and financial settings
+domain:fashion,Domain,fashion
+domain:financial data,Domain,financial data
+domain:financial extraction,Domain,financial extraction
+domain:financial regulation,Domain,financial regulation
+domain:financial services,Domain,Financial Services
+domain:healthcare,Domain,Healthcare
+domain:legal,Domain,Legal
+domain:life science laboratories,Domain,Life Science Laboratories
+domain:music analytics,Domain,Music Analytics
+domain:pharmaceutical industry,Domain,pharmaceutical industry
+domain:precision medicine,Domain,precision medicine
+domain:public health,Domain,Public Health
+domain:public healthcare,Domain,public healthcare
+domain:rare disease research,Domain,rare disease research
+domain:retail,Domain,Retail
+domain:sports sponsorship,Domain,sports sponsorship
+domain:supply chain,Domain,supply chain
+domain:tax law,Domain,Tax Law
+domain:transactional systems,Domain,Transactional Systems
+domain:transit,Domain,Transit
+domain:urban planning,Domain,Urban Planning
+domain:wealth management,Domain,wealth management
+domain:wildlife conservation,Domain,wildlife conservation
+domain:women's safety,Domain,women's safety
+organization:adobe,Organization,Adobe
+organization:ai coding agents,Organization,AI coding agents
+organization:ava,Organization,AVA
+organization:aws quick suite,Organization,AWS Quick Suite
+organization:bcnn,Organization,BCNN
+organization:cercle des fiscalistes,Organization,Cercle des Fiscalistes
+organization:cisco,Organization,Cisco
+organization:cogsolo,Organization,Cogsolo
+organization:colrows,Organization,Colrows
+organization:creating wings,Organization,Creating Wings
+organization:d&a medlabs,Organization,D&A MedLabs
+organization:deutsche bahn,Organization,Deutsche Bahn
+organization:fortune 500 financial services company,Organization,Fortune 500 financial services company
+organization:leadsponsor,Organization,LeadSponsor
+organization:motif,Organization,motif
+organization:neo4j startup program,Organization,Neo4j Startup Program
+organization:raras,Organization,Raras
+organization:rbi,Organization,RBI
+organization:respnd-mi / mpx nyc,Organization,RESPND-MI / MPX NYC
+organization:sec edgar,Organization,SEC EDGAR
+organization:station f,Organization,Station F
+organization:terralens,Organization,TerraLens
+organization:tokio marine hcc international,Organization,Tokio Marine HCC International
+organization:u.s. department of veterans affairs,Organization,U.S. Department of Veterans Affairs
+organization:vivpro,Organization,Vivpro
+technology:a2a,Technology,A2A
+technology:ai agent,Technology,AI Agent
+technology:amazon bedrock,Technology,Amazon Bedrock
+technology:amazon msk,Technology,Amazon MSK
+technology:ampligraph,Technology,AmpliGraph
+technology:apache flink,Technology,Apache Flink
+technology:apache kafka,Technology,Apache Kafka
+technology:apache spark,Technology,Apache Spark
+technology:aura,Technology,Aura
+technology:aws,Technology,AWS
+technology:biograph,Technology,BioGraph
+technology:bpmn,Technology,BPMN
+technology:chatgpt,Technology,ChatGPT
+technology:cognee,Technology,Cognee
+technology:cypher,Technology,Cypher
+technology:cypher mcp server,Technology,Cypher MCP server
+technology:databricks,Technology,Databricks
+technology:databricks genie,Technology,Databricks Genie
+technology:dbpedia,Technology,DBpedia
+technology:deepface,Technology,DeepFace
+technology:eloquent,Technology,Eloquent
+technology:gbif occurrence api,Technology,GBIF Occurrence API
+technology:geen.ai,Technology,Geen.ai
+technology:go,Technology,Go
+technology:google cloud run,Technology,Google Cloud Run
+technology:graph data science (gds),Technology,Graph Data Science (GDS)
+technology:graph type,Technology,GRAPH TYPE
+technology:grapheditor,Technology,GraphEditor
+technology:graphql federation,Technology,GraphQL Federation
+technology:graphrag,Technology,GraphRAG
+technology:informatica,Technology,Informatica
+technology:jev,Technology,Jev
+technology:langchain,Technology,LangChain
+technology:langgraph,Technology,LangGraph
+technology:laravel,Technology,Laravel
+technology:large language models,Technology,Large Language Models
+technology:leaflet,Technology,Leaflet
+technology:linear,Technology,Linear
+technology:llm,Technology,LLM
+technology:maplibre,Technology,MapLibre
+technology:mastra,Technology,Mastra
+technology:mcp,Technology,MCP
+technology:microsoft fabric,Technology,Microsoft Fabric
+technology:neo4j agent memory system,Technology,Neo4j Agent Memory System
+technology:neo4j aura,Technology,Neo4j Aura
+technology:neo4j aura agent,Technology,Neo4j Aura Agent
+technology:neo4j boost,Technology,Neo4j Boost
+technology:neo4j document intelligence,Technology,Neo4j Document Intelligence
+technology:neo4j driver,Technology,Neo4j Driver
+technology:neo4j gds,Technology,Neo4j GDS
+technology:neo4j instance,Technology,Neo4j Instance
+technology:neo4j kafka connector,Technology,Neo4j Kafka Connector
+technology:neo4j laravel,Technology,Neo4j Laravel
+technology:neo4j mcp,Technology,Neo4j MCP
+technology:neo4j mcp server,Technology,Neo4j MCP Server
+technology:neo4j nvl skill,Technology,Neo4j NVL Skill
+technology:neo4j property graph,Technology,Neo4j Property Graph
+technology:neo4j spark connector,Technology,Neo4j Spark Connector
+technology:neo4j vector index,Technology,Neo4j Vector Index
+technology:neo4j vector indexes,Technology,Neo4j Vector Indexes
+technology:neo4j vector search,Technology,Neo4j Vector Search
+technology:neo4j virtual graphs,Technology,Neo4j Virtual Graphs
+technology:neo4j-based knowledge graph,Technology,Neo4j-based Knowledge Graph
+technology:open-source models,Technology,Open-Source Models
+technology:openai api,Technology,OpenAI API
+technology:python,Technology,Python
+technology:query builder,Technology,Query Builder
+technology:random forest,Technology,Random Forest
+technology:rdf,Technology,RDF
+technology:rdf 1.2,Technology,RDF 1.2
+technology:regain,Technology,REGAIN
+technology:ria search tools,Technology,RIA Search Tools
+technology:semantic model inspector,Technology,Semantic Model Inspector
+technology:semvec ai,Technology,SemVec AI
+technology:slack,Technology,Slack
+technology:snowflake cortex,Technology,Snowflake Cortex
+technology:snowflake cortex analyst,Technology,Snowflake Cortex Analyst
+technology:spring data neo4j,Technology,Spring Data Neo4j
+technology:sybase,Technology,Sybase
+technology:terraform,Technology,Terraform
+technology:vercel ai sdk,Technology,Vercel AI SDK
+technology:wikidata,Technology,Wikidata

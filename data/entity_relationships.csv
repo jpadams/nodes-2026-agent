@@ -1,0 +1,41 @@
+startId,startLabel,type,endId,endLabel
+organization:adobe,Organization,USES,technology:neo4j aura,Technology
+organization:ai coding agents,Organization,USES,technology:cognee,Technology
+organization:ai coding agents,Organization,USES,technology:mcp,Technology
+organization:ava,Organization,USES,technology:neo4j aura,Technology
+organization:bcnn,Organization,OPERATES_IN,domain:criminal analysis,Domain
+organization:bcnn,Organization,OPERATES_IN,domain:healthcare,Domain
+organization:bcnn,Organization,OPERATES_IN,domain:legal,Domain
+organization:bcnn,Organization,USES,technology:large language models,Technology
+organization:bcnn,Organization,USES,technology:open-source models,Technology
+organization:cercle des fiscalistes,Organization,OPERATES_IN,domain:tax law,Domain
+organization:cercle des fiscalistes,Organization,USES,technology:mcp,Technology
+organization:cisco,Organization,OPERATES_IN,domain:customer support,Domain
+organization:creating wings,Organization,OPERATES_IN,domain:women's safety,Domain
+organization:d&a medlabs,Organization,OPERATES_IN,domain:biomedical research,Domain
+organization:deutsche bahn,Organization,USES,technology:grapheditor,Technology
+organization:fortune 500 financial services company,Organization,USES,technology:cypher,Technology
+organization:fortune 500 financial services company,Organization,USES,technology:informatica,Technology
+organization:fortune 500 financial services company,Organization,USES,technology:mcp,Technology
+organization:fortune 500 financial services company,Organization,USES,technology:sybase,Technology
+organization:leadsponsor,Organization,OPERATES_IN,domain:sports sponsorship,Domain
+organization:motif,Organization,OPERATES_IN,domain:supply chain,Domain
+organization:motif,Organization,OPERATES_IN,domain:wealth management,Domain
+organization:motif,Organization,USES,technology:llm,Technology
+organization:neo4j startup program,Organization,USES,technology:cypher,Technology
+organization:neo4j startup program,Organization,USES,technology:mcp,Technology
+organization:neo4j startup program,Organization,USES,technology:neo4j aura,Technology
+organization:raras,Organization,OPERATES_IN,domain:healthcare,Domain
+organization:rbi,Organization,OPERATES_IN,domain:financial regulation,Domain
+organization:respnd-mi / mpx nyc,Organization,OPERATES_IN,domain:public health,Domain
+organization:sec edgar,Organization,OPERATES_IN,domain:financial data,Domain
+organization:station f,Organization,OPERATES_IN,domain:urban planning,Domain
+organization:station f,Organization,USES,technology:langgraph,Technology
+organization:station f,Organization,USES,technology:neo4j aura,Technology
+organization:station f,Organization,USES,technology:openai api,Technology
+organization:terralens,Organization,OPERATES_IN,domain:financial services,Domain
+organization:tokio marine hcc international,Organization,USES,technology:neo4j aura agent,Technology
+organization:tokio marine hcc international,Organization,USES,technology:neo4j mcp server,Technology
+organization:tokio marine hcc international,Organization,USES,technology:snowflake cortex,Technology
+organization:u.s. department of veterans affairs,Organization,OPERATES_IN,domain:healthcare,Domain
+organization:vivpro,Organization,OPERATES_IN,domain:pharmaceutical industry,Domain
