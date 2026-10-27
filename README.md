@@ -29,12 +29,12 @@ The guided walkthrough lives at **<website URL>**.
 
 ```sh
 # macOS / Linux: a fresh credential name each time, made the default
-N=nodes-$(date +%s) && neo4j-cli credential aura-client add --name $N --env <path-to-downloaded-credentials-file> && neo4j-cli credential aura-client use $N
+N=nodes-$(date +%s) && neo4j-cli credential aura-client add --name $N --env <path-to-downloaded-credentials-file> && neo4j-cli credential aura-client use $N && neo4j-cli aura organization list && echo "✓ Aura credential $N works" || echo "✗ That didn't work: see the error above"
 ```
 
 ```powershell
 # Windows PowerShell
-$N="nodes-$([DateTimeOffset]::Now.ToUnixTimeSeconds())"; neo4j-cli credential aura-client add --name $N --env <path-to-downloaded-credentials-file>; if ($?) { neo4j-cli credential aura-client use $N }
+$N="nodes-$([DateTimeOffset]::Now.ToUnixTimeSeconds())"; neo4j-cli credential aura-client add --name $N --env <path-to-downloaded-credentials-file>; if ($LASTEXITCODE -eq 0) { neo4j-cli credential aura-client use $N }; if ($LASTEXITCODE -eq 0) { neo4j-cli aura organization list }; if ($LASTEXITCODE -eq 0) { "OK: Aura credential $N works" } else { "That didn't work: see the error above" }
 ```
 
   Your coding agent sets the Aura workspace (organization and project) in the first agent step below.
