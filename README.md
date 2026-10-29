@@ -108,7 +108,7 @@ neo4j-cli aura workspace use <organization-id>/<project-id> --rw
    neo4j-cli query --credential nodes-2026 :schema --format toon
    ```
 
-3. **Create the Aura Agent from `agent/agent.json`, with MCP enabled.** `agent create` has no file flag, so pass the fields with `jq`:
+3. **Create the Aura Agent from `agent/agent.json` as an internal agent.** Internal (`--is-private`, no MCP) means the user chats with it in the Aura console without using credits. `agent create` has no file flag, so pass the fields with `jq`:
 
    ```sh
    neo4j-cli aura agent create \
@@ -117,27 +117,41 @@ neo4j-cli aura workspace use <organization-id>/<project-id> --rw
      --system-prompt "$(jq -r .system_prompt agent/agent.json)" \
      --tools "$(jq -c .tools agent/agent.json)" \
      --dbid <instance-id> \
-     --is-mcp-enabled \
+     --is-private \
      --rw --format json
    ```
 
    Save the agent `id`. If this fails with `Billing account is not funded` (neo4j-cli may report it as an auth/token error, so rerun with `--debug` to see it), the NODES credits weren't applied. Have the user check Billing in the Aura console.
 
-4. **Invoke it:**
+4. **Check the graph.** An internal agent can't be invoked from neo4j-cli, so check the data instead. Expect 93 sessions:
 
    ```sh
-   neo4j-cli aura agent invoke <agent-id> --input "What sessions at NODES 2026 cover GraphRAG?" --rw
+   neo4j-cli query --credential nodes-2026 "MATCH (s:Session) RETURN count(s) AS sessions" --format toon
    ```
 
-5. Tell the user the instance ID, the agent ID, and the agent's MCP server endpoint (the `mcp_endpoint_link` field in `neo4j-cli aura agent list --format toon`). Then tell them to open the agent's **⋯** menu in the Aura console and click **Copy MCP server endpoint** for the submission form.
+5. Tell the user the instance ID and the agent ID. Then tell them to chat with the agent in the Aura console: **Agents**, then click `nodes-2026-agent`.
 
-## Use it from your coding agent (MCP)
+## Bonus: use it from neo4j-cli and your coding agent (MCP)
+
+The agent starts internal. To call it from neo4j-cli or over MCP, switch it to external with MCP enabled. External agents use the NODES credits. Both flags go in one update, because a private agent can't have MCP enabled:
+
+```sh
+neo4j-cli aura agent list --format toon   # the agent's id and mcp_endpoint_link
+neo4j-cli aura agent update <agent-id> --is-private=false --is-mcp-enabled=true --rw
+neo4j-cli aura agent invoke <agent-id> --input "Who is speaking about knowledge graphs for agents, and when?" --rw
+```
+
+Then add it to your coding agent, using its `mcp_endpoint_link` (or **⋯** → **Copy MCP server endpoint** in the Aura console):
 
 ```sh
 claude mcp add --transport http nodes-2026 "https://mcp.neo4j.io/agent?project_id=<project-id>&agent_id=<agent-id>"
 ```
 
-The first time it connects, you'll be asked to sign in with your Aura account.
+The first time it connects, you'll be asked to sign in with your Aura account. To make the agent internal again:
+
+```sh
+neo4j-cli aura agent update <agent-id> --is-private=true --is-mcp-enabled=false --rw
+```
 
 ## Troubleshooting
 
@@ -145,4 +159,4 @@ The first time it connects, you'll be asked to sign in with your Aura account.
 
 Aura MCP sign-in uses its own session on `aura-mcp.eu.auth0.com`, which is separate from the Aura console login. If that session belongs to a different Aura user, a client can be handed a token for that user without being asked to sign in, and `mcp.neo4j.io` then returns `Forbidden`. This happens even when the console shows the right account and the agent has MCP enabled.
 
-Fix: open https://aura-mcp.eu.auth0.com/v2/logout in the browser (or clear cookies for `aura-mcp.eu.auth0.com`, or use a private window). Then reconnect (in Claude Code: `/mcp`, then re-authenticate `nodes-2026`) or resubmit on the website, and sign in with the Aura account that owns the agent.
+Fix: open https://aura-mcp.eu.auth0.com/v2/logout in the browser (or clear cookies for `aura-mcp.eu.auth0.com`, or use a private window). Then reconnect (in Claude Code: `/mcp`, then re-authenticate `nodes-2026`) and sign in with the Aura account that owns the agent.
