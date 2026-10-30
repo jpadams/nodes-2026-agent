@@ -13,7 +13,7 @@
       "name": "sessions-by-speaker",
       "description": "List the sessions a speaker is presenting, with their time slots, by speaker name or part of it. Accents are optional: Eifrem matches Eifrém.",
       "config": {
-        "template": "WITH [w IN split(reduce(q = toLower($name), c IN ['\\\\', '+', '-', '!', '(', ')', '{', '}', '[', ']', '^', '\"', '~', '*', '?', ':', '/', '&', '|'] | replace(q, c, ' ')), ' ') WHERE w <> ''] AS words WHERE size(words) > 0 CALL db.index.fulltext.queryNodes('speaker_names', reduce(q = '', w IN words | q + CASE q WHEN '' THEN '' ELSE ' AND ' END + '(' + w + ' OR ' + w + '*)')) YIELD node AS sp, score MATCH (sp)-[:PRESENTS]->(s:Session) OPTIONAL MATCH (s)-[:HAS_SLOT]->(sl:Slot) WITH sp, score, s, sl ORDER BY sl.startTime WITH sp, score, s, collect(sl.displayTime) AS times RETURN sp.name AS speaker, s.title AS title, times ORDER BY score DESC, title LIMIT 25",
+        "template": "WITH [w IN split(reduce(q = toLower($name), c IN ['\\\\', '+', '-', '!', '(', ')', '{', '}', '[', ']', '^', '\"', '~', '*', '?', ':', '/', '&', '|'] | replace(q, c, ' ')), ' ') WHERE w <> ''] AS words WHERE size(words) > 0 CALL db.index.fulltext.queryNodes('speaker_names', reduce(q = '', w IN words | q + CASE q WHEN '' THEN '' ELSE ' AND ' END + '(' + w + ' OR ' + w + '*)')) YIELD node AS sp, score MATCH (sp)-[:PRESENTS]->(s:Session) OPTIONAL MATCH (s)-[:HAS_SLOT]->(sl:Slot) WITH sp, score, s, sl ORDER BY sl.startTime WITH sp, score, s, collect(sl.displayTime) AS times OPTIONAL MATCH (s)<-[:PRESENTS]-(co:Speaker) WITH sp, score, s, times, collect(co.name) AS speakers RETURN sp.name AS speaker, s.title AS title, speakers, times ORDER BY score DESC, title LIMIT 25",
         "parameters": [
           {
             "name": "name",
