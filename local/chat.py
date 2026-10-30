@@ -56,7 +56,9 @@ MATCH (sp)-[:PRESENTS]->(s:Session)
 OPTIONAL MATCH (s)-[:HAS_SLOT]->(sl:Slot)
 WITH sp, s, sl ORDER BY sl.startTime
 WITH sp, s, collect(sl.displayTime) AS times
-RETURN sp.name AS speaker, s.title AS title, times ORDER BY speaker, title LIMIT 25
+OPTIONAL MATCH (s)<-[:PRESENTS]-(co:Speaker)
+WITH sp, s, times, collect(co.name) AS speakers
+RETURN sp.name AS speaker, s.title AS title, speakers, times ORDER BY speaker, title LIMIT 25
 """,
 }
 
