@@ -24,7 +24,7 @@ The guided walkthrough lives at **<website URL>**.
 
 ## Prerequisites
 
-- [neo4j-cli](https://neo4j.sh): `curl -sSfL https://neo4j.sh/install.sh | bash` on macOS / Linux, or `irm https://neo4j.sh/install.ps1 | iex` in Windows PowerShell (then restart the terminal). Homebrew and npm also work: see neo4j.sh.
+- [neo4j-cli](https://neo4j.sh): `curl -sSfL https://neo4j.sh/install.sh | bash` on macOS / Linux, or `irm https://neo4j.sh/install.ps1 | iex` in Windows PowerShell (in Command Prompt, type `powershell` first; then restart the terminal). Homebrew and npm also work: see neo4j.sh.
 - An Aura account (sign up with the NODES 2026 link from the walkthrough), plus an Aura API key stored with:
 
 ```sh
