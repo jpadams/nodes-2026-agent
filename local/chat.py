@@ -1,28 +1,30 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["langchain==1.4.5", "langchain-openai==1.7.1", "neo4j==6.4.0"]
+# dependencies = ["langchain==1.4.5", "langchain-openai==1.7.1", "neo4j-cypherlite==0.13.0"]
+#
+# [tool.uv]
+# # CypherLite isn't on PyPI yet: its wheels come from the GitHub release (see local/README.md).
+# # The path is relative to where you run uv, so run from the repo root.
+# find-links = ["local/wheels"]
 # ///
-"""Chat with a local copy of the NODES 2026 Aura Agent, backed by CypherLite.
+"""Chat with a local copy of the NODES 2026 Aura Agent, with CypherLite embedded in-process.
 
-The system prompt and tools come from agent/agent.json, the same definition Aura uses:
+On start, the graph is loaded into memory from data/*.csv with the same data/load.cypher Aura
+uses (well under a second). The system prompt and tools come from agent/agent.json:
 - cypherTemplate tools run their Cypher with the model's parameters.
 - similaritySearch embeds the question, queries the vector index, then runs the post-processing Cypher.
 - text2cypher asks the model to write a read-only Cypher query from the tool's schema description.
 
-Needs OPENAI_API_KEY, and local/nodes.db from `uv run local/setup.py`.
-Usage: uv run local/chat.py [--verbose]
+Needs OPENAI_API_KEY.
+Usage: uv run local/chat.py [--verbose] ["question"]
+  With a question: answer it and exit. Without: chat until Ctrl-C or Ctrl-D.
 """
 
-import atexit
 import json
 import os
 import re
-import secrets
-import shutil
-import socket
-import subprocess
 import sys
-import time
+from concurrent.futures import ThreadPoolExecutor
 import unicodedata
 from pathlib import Path
 
@@ -30,11 +32,14 @@ from langchain.agents import create_agent
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.tools import StructuredTool
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from neo4j import GraphDatabase
 from pydantic import Field, create_model
 
 ROOT = Path(__file__).resolve().parent.parent
-DB = Path(__file__).resolve().parent / "nodes.db"
+DATA = ROOT / "data"
+# LOAD CSV may read only from this directory. Set before cypherlite opens a database.
+os.environ["CYPHERLITE_LOAD_CSV_DIR"] = str(DATA)
+import cypherlite  # noqa: E402
+
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
 MAX_ROWS = 25
 VERBOSE = "--verbose" in sys.argv
@@ -63,42 +68,50 @@ def fold(text: str) -> str:
     return "".join(c for c in decomposed if not unicodedata.combining(c))
 
 
-def start_cypherlite() -> tuple[str, tuple[str, str]]:
-    """Serve local/nodes.db read-only over Bolt on a free port, with a one-off password."""
-    if not shutil.which("cypherlite"):
-        sys.exit("cypherlite isn't installed: see https://neo4j-labs.github.io/cypherlite/")
-    if not DB.exists():
-        sys.exit("local/nodes.db doesn't exist yet. Run: uv run local/setup.py")
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0))
-        port = s.getsockname()[1]
-    password = secrets.token_hex(16)
-    proc = subprocess.Popen(
-        ["cypherlite", "serve", "-d", str(DB), "--bolt", str(port), "--auth", f"neo4j:{password}", "--read-only"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    atexit.register(proc.terminate)
-    for _ in range(50):
-        if proc.poll() is not None:
-            sys.exit(f"cypherlite serve exited:\n{proc.stderr.read()}")
-        try:
-            socket.create_connection(("127.0.0.1", port), timeout=0.2).close()
-            return f"bolt://127.0.0.1:{port}", ("neo4j", password)
-        except OSError:
-            time.sleep(0.1)
-    sys.exit("cypherlite serve didn't start")
-
-
 class Graph:
-    def __init__(self, uri: str, auth: tuple[str, str]):
-        self.driver = GraphDatabase.driver(uri, auth=auth)
-        atexit.register(self.driver.close)
+    """The NODES graph in an in-memory CypherLite database."""
 
-    def run(self, cypher: str, **params) -> list[dict]:
-        records, _, _ = self.driver.execute_query(cypher, params)
-        return [r.data() for r in records[:MAX_ROWS]]
+    def __init__(self):
+        # The embedded database must stay on the thread that opened it, but the agent calls tools
+        # from worker threads. So one dedicated thread opens it and runs every query, in turn.
+        self.thread = ThreadPoolExecutor(max_workers=1)
+        self.db = self.thread.submit(cypherlite.connect, ":memory:").result()
+        self.load()
+
+    def execute(self, cypher: str, params: dict | None = None) -> list[dict]:
+        def work():
+            return [{k: r[k] for k in r.keys()} for r in self.db.execute(cypher, params)]
+
+        return self.thread.submit(work).result()
+
+    def close(self):
+        """Close and drop the database on its own thread, as it requires."""
+
+        def work():
+            self.db.close()
+            del self.db
+
+        self.thread.submit(work).result()
+        self.thread.shutdown()
+
+    def load(self):
+        """Run data/load.cypher, adjusted for CypherLite: local CSV paths and a plain SET for
+        embeddings (there's no db.create.setNodeVectorProperty). Then add accent-folded speaker names."""
+        script = (DATA / "load.cypher").read_text()
+        script = re.sub(r"https://raw\.githubusercontent\.com/[^']*/data/", "", script)
+        script = re.sub(r"CALL db\.create\.setNodeVectorProperty\(c, 'embedding', (.*)\);", r"SET c.embedding = \1;", script)
+        # Statements end with ; at the end of a line, as in neo4j-cli.
+        for statement in re.split(r";[ \t]*$", script, flags=re.M):
+            if any(line.strip() and not line.strip().startswith("//") for line in statement.splitlines()):
+                self.execute(statement)
+        names = [r["name"] for r in self.run("MATCH (p:Speaker) RETURN p.name AS name", limit=None)]
+        self.execute(
+            "UNWIND $rows AS row MATCH (p:Speaker {name: row.name}) SET p.nameFolded = row.folded",
+            {"rows": [{"name": n, "folded": fold(n)} for n in names]},
+        )
+
+    def run(self, cypher: str, limit: int | None = MAX_ROWS, **params) -> list[dict]:
+        return self.execute(cypher, params)[:limit]
 
 
 def to_json(rows) -> str:
@@ -182,32 +195,45 @@ def show_steps(messages) -> None:
             print(f"  ← {text[:300]}{'…' if len(text) > 300 else ''}")
 
 
+def ask(agent, history: list, question: str) -> list:
+    """Answer one question, printing the answer; returns the conversation so far."""
+    history = history + [HumanMessage(question)]
+    result = agent.invoke({"messages": history})
+    if VERBOSE:
+        show_steps(result["messages"][len(history) :])
+    print(f"\nagent> {result['messages'][-1].content}\n")
+    return result["messages"]
+
+
 def main() -> None:
     if not os.environ.get("OPENAI_API_KEY"):
         sys.exit("Set OPENAI_API_KEY first.")
+    args = [a for a in sys.argv[1:] if a != "--verbose"]
     spec = json.loads((ROOT / "agent" / "agent.json").read_text())
-    graph = Graph(*start_cypherlite())
-    tools = [BUILDERS[t["type"]](graph, t) for t in spec["tools"] if t.get("enabled", True)]
-    agent = create_agent(model=ChatOpenAI(model=MODEL), tools=tools, system_prompt=spec["system_prompt"])
+    graph = Graph()
+    try:
+        tools = [BUILDERS[t["type"]](graph, t) for t in spec["tools"] if t.get("enabled", True)]
+        agent = create_agent(model=ChatOpenAI(model=MODEL), tools=tools, system_prompt=spec["system_prompt"])
 
-    print(f"{spec['name']} (local, {MODEL}). {spec['description']}")
-    print("Ask a question, or press Ctrl-D to quit.\n")
-    history = []
-    while True:
-        try:
-            question = input("you> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
+        if args:
+            ask(agent, [], " ".join(args))
             return
-        if not question:
-            continue
-        history.append(HumanMessage(question))
-        result = agent.invoke({"messages": history})
-        new = result["messages"][len(history) :]
-        if VERBOSE:
-            show_steps(new)
-        history = result["messages"]
-        print(f"\nagent> {history[-1].content}\n")
+
+        print(f"{spec['name']} (local, {MODEL}). {spec['description']}")
+        print("Ask a question, or press Ctrl-D to quit.\n")
+        history = []
+        while True:
+            try:
+                question = input("you> ").strip()
+            except EOFError:
+                print()
+                return
+            if question:
+                history = ask(agent, history, question)
+    except KeyboardInterrupt:  # Ctrl-C, at the prompt or mid-answer
+        print()
+    finally:
+        graph.close()
 
 
 if __name__ == "__main__":
