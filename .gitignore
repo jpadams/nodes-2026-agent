@@ -1,2 +1,4 @@
 *.xlsx
 .env
+local/nodes.db
+local/nodes.db.*
