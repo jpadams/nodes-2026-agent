@@ -4,23 +4,43 @@
 
 Each talk is one `Session` (the graphrag document) with one `Chunk` holding `Title`, `Speakers`, and `Description`. The chunk is embedded with OpenAI `text-embedding-3-small`. An LLM (`gpt-5.4-mini`) extracts `Technology`, `Concept`, `Organization`, and `Domain` entities from it, using the schema in `build_graph.py`. Speaker, track, topics, use cases, and time slots come straight from the sheet's columns.
 
-## Run
+## From the spreadsheet to the live agents
 
-Needs [uv](https://docs.astral.sh/uv/), a scratch Neo4j database (`--reset` **deletes everything in it**), and a `.env` file:
+This repo is published from the `companion-repo/` folder of the NODES promo website (nodes-promo-app). Edit there, then publish with that repo's `scripts/sync-companion.sh` (see step 4).
 
-```sh
-OPENAI_API_KEY=...
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=...
-```
+1. **Get the sheet.** Export the accepted sessions to `.xlsx` (see [The input sheet](#the-input-sheet)). Keep it out of git: `*.xlsx` is ignored here.
 
-```sh
-uv run --env-file .env build_graph.py path/to/accepted-sessions.xlsx --reset   # ~30s for ~100 talks
-uv run --env-file .env export_csv.py                                           # writes ../data/*.csv
-```
+2. **Build the graph in a scratch Neo4j database.** You need [uv](https://docs.astral.sh/uv/), an OpenAI API key, and a scratch database: `--reset` **deletes everything in it**. A throwaway Docker container from neo4j-cli works: `neo4j-cli docker create --name nodes-build --ephemeral --wait --env-out-file neo4j.env --rw` writes its `NEO4J_*` lines to `neo4j.env`. Put those lines and your key in `build/.env` (gitignored):
 
-Then commit `data/`. Don't commit the spreadsheet.
+   ```sh
+   OPENAI_API_KEY=...
+   NEO4J_URI=bolt://localhost:7687
+   NEO4J_USERNAME=neo4j
+   NEO4J_PASSWORD=...
+   ```
+
+   ```sh
+   cd build
+   uv run --env-file .env build_graph.py path/to/accepted-sessions.xlsx --reset   # ~30s for ~100 talks
+   uv run --env-file .env export_csv.py                                           # writes ../data/*.csv
+   ```
+
+   This calls OpenAI once per talk for embeddings and entity extraction. Re-runs give slightly different entities.
+
+3. **Check the result.** In nodes-promo-app, `git diff --stat companion-repo/data/` shows what changed. The count query at the end of `data/load.cypher` prints the new totals. The docs and agent prompts don't hard-code them, so a different number of sessions needs no other edits.
+
+4. **Publish.** From nodes-promo-app: `scripts/sync-companion.sh` shows what would change, and `scripts/sync-companion.sh "Update sessions from the <date> sheet"` commits it on `main` with a sign-off. Then push `main`. Until it's pushed, nobody sees the new data, because `data/load.cypher` loads the CSVs from this repo's raw GitHub URLs on `main`.
+
+5. **Reload the live databases.** `data/load.cypher` only merges, so re-running it adds new talks and updates changed ones, but talks, speakers, or entities that were dropped stay behind. For the chat's pool instances, which hold nothing else, clear the graph first, then load. Run this once per instance:
+
+   ```sh
+   neo4j-cli query --credential <dbms-credential> --rw "MATCH (n) DETACH DELETE n"
+   neo4j-cli query --credential <dbms-credential> --rw < data/load.cypher
+   ```
+
+   Attendees who already built their agent can re-run `data/load.cypher`. They get the new and changed talks, and dropped ones linger.
+
+6. **Clear stale answers.** The website caches chat answers for 6 hours. Delete the `ask:answer:*` keys in its Upstash console so the chat reflects the new data straight away.
 
 ## The input sheet
 

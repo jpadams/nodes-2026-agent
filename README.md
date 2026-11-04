@@ -123,7 +123,7 @@ neo4j-cli aura workspace use <organization-id>/<project-id> --rw
 
    Save the agent `id`. If this fails with `Billing account is not funded` (neo4j-cli may report it as an auth/token error, so rerun with `--debug` to see it), the NODES credits weren't applied. Have the user check Billing in the Aura console.
 
-4. **Check the graph.** An internal agent can't be invoked from neo4j-cli, so check the data instead. Expect 93 sessions:
+4. **Check the graph.** An internal agent can't be invoked from neo4j-cli, so check the data instead. The session count should match the one step 2 printed:
 
    ```sh
    neo4j-cli query --credential nodes-2026 "MATCH (s:Session) RETURN count(s) AS sessions" --format toon
