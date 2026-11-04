@@ -1,6 +1,6 @@
 # Run the NODES 2026 agent locally
 
-A local copy of the Aura Agent: the same graph, system prompt, and tools, with [CypherLite](https://neo4j-labs.github.io/cypherlite/) (an embeddable graph database) running inside the app, plus LangChain and OpenAI. There's no Aura account, database server, or setup step: each run loads the graph into memory from `data/*.csv` in well under a second.
+A local copy of the Aura Agent: the same graph, system prompt, and tools, with [CypherLite](https://neo4j-labs.github.io/cypherlite/) (an embeddable graph database) running inside the app, plus [Strands Agents](https://strandsagents.com/) and OpenAI. There's no Aura account, database server, or setup step: each run loads the graph into memory from `data/*.csv` in well under a second.
 
 ## Prerequisites
 

@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["langchain==1.4.5", "langchain-openai==1.7.1", "neo4j-cypherlite==0.13.0"]
+# dependencies = ["strands-agents[openai]==1.63.0", "openai==3.45.0", "neo4j-cypherlite==0.13.0"]
 #
 # [tool.uv]
 # # CypherLite isn't on PyPI yet: its wheels come from the GitHub release (see local/README.md).
@@ -28,11 +28,10 @@ from concurrent.futures import ThreadPoolExecutor
 import unicodedata
 from pathlib import Path
 
-from langchain.agents import create_agent
-from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
-from langchain_core.tools import StructuredTool
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from pydantic import Field, create_model
+from openai import OpenAI
+from strands import Agent
+from strands.models.openai import OpenAIModel
+from strands.tools import PythonAgentTool
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
@@ -120,45 +119,50 @@ def to_json(rows) -> str:
     return json.dumps(rows, default=str, ensure_ascii=False)
 
 
-def template_tool(graph: Graph, spec: dict) -> StructuredTool:
+def make_tool(spec: dict, properties: dict[str, str], run) -> PythonAgentTool:
+    """A Strands tool named and described as in agent.json, taking string arguments
+    (name -> description) and returning run(**arguments) to the model as text."""
+
+    def call(tool_use, **_) -> dict:
+        text = run(**tool_use["input"])
+        return {"toolUseId": tool_use["toolUseId"], "status": "success", "content": [{"text": text}]}
+
+    schema = {
+        "type": "object",
+        "properties": {name: {"type": "string", "description": d} for name, d in properties.items()},
+        "required": list(properties),
+    }
+    tool_spec = {"name": spec["name"], "description": spec["description"], "inputSchema": {"json": schema}}
+    return PythonAgentTool(spec["name"], tool_spec, call)
+
+
+def template_tool(graph: Graph, client: OpenAI, spec: dict) -> PythonAgentTool:
     config = spec["config"]
     template = LOCAL_TEMPLATES.get(spec["name"], config["template"])
-    fields = {p["name"]: (str, Field(description=p["description"])) for p in config["parameters"]}
 
     def run(**params) -> str:
         if spec["name"] == "sessions-by-speaker":
             params = {k: fold(v) for k, v in params.items()}
         return to_json(graph.run(template, **params))
 
-    return StructuredTool.from_function(
-        func=run,
-        name=spec["name"],
-        description=spec["description"],
-        args_schema=create_model(f"{spec['name']}_args", **fields),
-    )
+    return make_tool(spec, {p["name"]: p["description"] for p in config["parameters"]}, run)
 
 
-def similarity_tool(graph: Graph, spec: dict) -> StructuredTool:
+def similarity_tool(graph: Graph, client: OpenAI, spec: dict) -> PythonAgentTool:
     config = spec["config"]
-    embeddings = OpenAIEmbeddings(model=config["model"])
     cypher = (
         f"CALL db.index.vector.queryNodes('{config['index']}', {int(config['top_k'])}, $embedding) "
         f"YIELD node, score {config['post_processing_cypher']}"
     )
 
     def run(query: str) -> str:
-        return to_json(graph.run(cypher, embedding=embeddings.embed_query(query)))
+        embedding = client.embeddings.create(model=config["model"], input=query).data[0].embedding
+        return to_json(graph.run(cypher, embedding=embedding))
 
-    return StructuredTool.from_function(
-        func=run,
-        name=spec["name"],
-        description=spec["description"],
-        args_schema=create_model(f"{spec['name']}_args", query=(str, Field(description="What to search for, in natural language."))),
-    )
+    return make_tool(spec, {"query": "What to search for, in natural language."}, run)
 
 
-def text2cypher_tool(graph: Graph, spec: dict) -> StructuredTool:
-    llm = ChatOpenAI(model=MODEL)
+def text2cypher_tool(graph: Graph, client: OpenAI, spec: dict) -> PythonAgentTool:
     instructions = (
         "Write one read-only Cypher query that answers the question, for this graph:\n"
         f"{spec['description']}\n"
@@ -167,21 +171,21 @@ def text2cypher_tool(graph: Graph, spec: dict) -> StructuredTool:
     )
 
     def run(question: str) -> str:
-        messages = [("system", instructions), ("human", question)]
+        messages = [{"role": "system", "content": instructions}, {"role": "user", "content": question}]
         for _ in range(2):
-            cypher = re.sub(r"^```\w*\s*|\s*```$", "", llm.invoke(messages).content.strip())
+            reply = client.chat.completions.create(model=MODEL, messages=messages).choices[0].message.content
+            cypher = re.sub(r"^```\w*\s*|\s*```$", "", reply.strip())
             try:
                 return to_json({"cypher": cypher, "rows": graph.run(cypher)})
             except Exception as err:  # Retry once with the error, the way a person would.
-                messages += [("ai", cypher), ("human", f"That failed: {err}. Fix the query.")]
-        return to_json({"cypher": cypher, "error": str(err)})
+                error = err
+                messages += [
+                    {"role": "assistant", "content": cypher},
+                    {"role": "user", "content": f"That failed: {err}. Fix the query."},
+                ]
+        return to_json({"cypher": cypher, "error": str(error)})
 
-    return StructuredTool.from_function(
-        func=run,
-        name=spec["name"],
-        description=spec["description"],
-        args_schema=create_model(f"{spec['name']}_args", question=(str, Field(description="The question to answer from the graph."))),
-    )
+    return make_tool(spec, {"question": "The question to answer from the graph."}, run)
 
 
 BUILDERS = {"cypherTemplate": template_tool, "similaritySearch": similarity_tool, "text2cypher": text2cypher_tool}
@@ -189,22 +193,22 @@ BUILDERS = {"cypherTemplate": template_tool, "similaritySearch": similarity_tool
 
 def show_steps(messages) -> None:
     for m in messages:
-        if isinstance(m, AIMessage):
-            for call in m.tool_calls:
-                print(f"  → {call['name']}({json.dumps(call['args'], ensure_ascii=False)})")
-        elif isinstance(m, ToolMessage):
-            text = str(m.content)
-            print(f"  ← {text[:300]}{'…' if len(text) > 300 else ''}")
+        for block in m["content"]:
+            if "toolUse" in block:
+                call = block["toolUse"]
+                print(f"  → {call['name']}({json.dumps(call['input'], ensure_ascii=False)})")
+            elif "toolResult" in block:
+                text = " ".join(c.get("text", "") for c in block["toolResult"]["content"])
+                print(f"  ← {text[:300]}{'…' if len(text) > 300 else ''}")
 
 
-def ask(agent, history: list, question: str) -> list:
-    """Answer one question, printing the answer; returns the conversation so far."""
-    history = history + [HumanMessage(question)]
-    result = agent.invoke({"messages": history})
+def ask(agent: Agent, question: str) -> None:
+    """Answer one question, printing the answer. The agent keeps the conversation."""
+    start = len(agent.messages)
+    result = agent(question)
     if VERBOSE:
-        show_steps(result["messages"][len(history) :])
-    print(f"\nagent> {result['messages'][-1].content}\n")
-    return result["messages"]
+        show_steps(agent.messages[start:])
+    print(f"\nagent> {str(result).strip()}\n")
 
 
 def main() -> None:
@@ -214,16 +218,18 @@ def main() -> None:
     spec = json.loads((ROOT / "agent" / "agent.json").read_text())
     graph = Graph()
     try:
-        tools = [BUILDERS[t["type"]](graph, t) for t in spec["tools"] if t.get("enabled", True)]
-        agent = create_agent(model=ChatOpenAI(model=MODEL), tools=tools, system_prompt=spec["system_prompt"])
+        client = OpenAI()
+        tools = [BUILDERS[t["type"]](graph, client, t) for t in spec["tools"] if t.get("enabled", True)]
+        # callback_handler=None: print only the final answer, not the streamed tokens.
+        model = OpenAIModel(model_id=MODEL)
+        agent = Agent(model=model, tools=tools, system_prompt=spec["system_prompt"], callback_handler=None)
 
         if args:
-            ask(agent, [], " ".join(args))
+            ask(agent, " ".join(args))
             return
 
         print(f"{spec['name']} (local, {MODEL}). {spec['description']}")
         print("Ask a question, or press Ctrl-D to quit.\n")
-        history = []
         while True:
             try:
                 question = input("you> ").strip()
@@ -231,7 +237,7 @@ def main() -> None:
                 print()
                 return
             if question:
-                history = ask(agent, history, question)
+                ask(agent, question)
     except KeyboardInterrupt:  # Ctrl-C, at the prompt or mid-answer
         print()
     finally:
