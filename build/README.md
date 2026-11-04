@@ -10,7 +10,7 @@ This repo is published from the `companion-repo/` folder of the NODES promo webs
 
 1. **Get the sheet.** Export the accepted sessions to `.xlsx` (see [The input sheet](#the-input-sheet)). Keep it out of git: `*.xlsx` is ignored here.
 
-2. **Build the graph in a scratch Neo4j database.** You need [uv](https://docs.astral.sh/uv/), an OpenAI API key, and a scratch database: `--reset` **deletes everything in it**. A throwaway Docker container from neo4j-cli works: `neo4j-cli docker create --name nodes-build --ephemeral --wait --env-out-file neo4j.env --rw` writes its `NEO4J_*` lines to `neo4j.env`. Put those lines and your key in `build/.env` (gitignored):
+2. **Build the graph in a scratch Neo4j database.** Run this in nodes-promo-app's `companion-repo/build/`, not in a clone of this repo, so the export lands in `companion-repo/data/`, ready to publish. You need [uv](https://docs.astral.sh/uv/), an OpenAI API key, and a scratch database: `--reset` **deletes everything in it**. A throwaway Docker container from neo4j-cli works: `neo4j-cli docker create --name nodes-build --ephemeral --wait --env-out-file neo4j.env --rw` writes its `NEO4J_*` lines to `neo4j.env`. Put those lines and your key in `build/.env` (gitignored):
 
    ```sh
    OPENAI_API_KEY=...
