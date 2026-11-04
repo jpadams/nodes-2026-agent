@@ -132,7 +132,10 @@ class Talk:
 
 
 def clean(v) -> str:
-    return re.sub(r"\s+", " ", str(v or "")).strip()
+    # Some exports escape control characters as _xHHHH_ (e.g. _x000D_ for \r),
+    # which openpyxl leaves as literal text.
+    text = re.sub(r"_x([0-9A-Fa-f]{4})_", lambda m: chr(int(m[1], 16)), str(v or ""))
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def split_list(v) -> list[str]:
