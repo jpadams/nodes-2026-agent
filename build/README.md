@@ -39,7 +39,7 @@ This repo is published from the `companion-repo/` folder of the NODES promo webs
 
    Attendees who already built their agent can re-run `data/load.cypher`. They get the new and changed talks, and dropped ones linger.
 
-6. **Clear stale answers.** The website caches chat answers for 6 hours. Delete the `ask:answer:*` keys in its Upstash console so the chat reflects the new data straight away.
+6. **Clear stale answers.** The website caches chat answers for 6 hours, in Redis when it has one and in each server instance's memory. To serve the new data straight away, delete the `ask:answer:*` keys in Redis, if configured, then redeploy the website. See "Clear cached answers" in the website's README.
 
 ## The input sheet
 
