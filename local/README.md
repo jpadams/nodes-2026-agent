@@ -1,6 +1,13 @@
 # Run the NODES 2026 agent locally
 
-A local copy of the Aura Agent: the same graph, system prompt, and tools, with [Relate](https://relatedb.ai/) (an embeddable graph database)  running inside the app, plus [Strands Agents](https://strandsagents.com/) and OpenAI. There's no Aura account, database server, or setup step: each run loads the graph into memory from `data/*.csv` in well under a second.
+A local copy of the Aura Agent: the same graph, system prompt, and tools, with [Relate](https://relatedb.ai/) (an embeddable graph database)  running inside the app, plus OpenAI. There's no Aura account, database server, or setup step: each run loads the graph into memory from `data/*.csv` in well under a second.
+
+There are two variants with the same graph, prompt, and tools. Only the agent framework differs:
+
+| Script | Framework |
+|---|---|
+| [`strands-relate-agent.py`](strands-relate-agent.py) | [Strands Agents](https://strandsagents.com/) |
+| [`langchain-relate-agent.py`](langchain-relate-agent.py) | [LangChain](https://docs.langchain.com/) |
 
 ## Prerequisites
 
@@ -14,12 +21,13 @@ A local copy of the Aura Agent: the same graph, system prompt, and tools, with [
 
 ## Run
 
-From the repo root:
+From the repo root (either script takes the same arguments):
 
 ```sh
 export OPENAI_API_KEY=sk-...
 uv run local/strands-relate-agent.py                         # chat until Ctrl-C or Ctrl-D
 uv run local/strands-relate-agent.py "What's on Wednesday?"  # answer one question and exit
+uv run local/langchain-relate-agent.py "What's on Wednesday?"
 ```
 
 Add `--verbose` to see each tool call and the Cypher it ran.
