@@ -9,6 +9,8 @@ There are two variants with the same graph, prompt, and tools. Only the agent fr
 | [`strands-relate-agent.py`](strands-relate-agent.py) | [Strands Agents](https://strandsagents.com/) |
 | [`langchain-relate-agent.py`](langchain-relate-agent.py) | [LangChain](https://docs.langchain.com/) |
 
+Both import [`nodes_graph.py`](nodes_graph.py), which holds everything that doesn't depend on the framework: the graph, the tools' queries, and the command line. Each script adds only how its framework wraps the tools, calls the model, and keeps the conversation.
+
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
