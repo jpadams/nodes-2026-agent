@@ -1,3 +1,4 @@
 *.xlsx
 .env
 local/wheels/
+__pycache__/
