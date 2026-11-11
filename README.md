@@ -6,7 +6,7 @@ This repo contains:
 - `data/load.cypher`: builds the graph in Aura straight from this repo's raw GitHub URLs. It's safe to re-run.
 - `build/`: how the CSVs were made, with [neo4j-graphrag](https://neo4j.com/docs/neo4j-graphrag-python/). You don't need to run it.
 - `agent/agent.json`: the Aura Agent definition (system prompt + tools)
-- `local/`: run the same agent locally on [CypherLite](https://neo4j-labs.github.io/cypherlite/), Strands Agents, and OpenAI, with no Aura account. See [local/README.md](local/README.md).
+- `local/`: run the same agent locally on [Relate](https://relatedb.ai/), Strands Agents, and OpenAI, with no Aura account. See [local/README.md](local/README.md).
 
 Graph:
 

@@ -1,13 +1,13 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["strands-agents[openai]==1.63.0", "openai==3.45.0", "neo4j-cypherlite==0.13.0"]
+# dependencies = ["strands-agents[openai]==1.63.0", "openai==3.45.0", "relate-db==0.1.2"]
 #
 # [tool.uv]
-# # CypherLite isn't on PyPI yet: its wheels come from the GitHub release (see local/README.md).
+# # Relate isn't on PyPI yet: its wheels come from the GitHub release (see local/README.md).
 # # The path is relative to where you run uv, so run from the repo root.
 # find-links = ["local/wheels"]
 # ///
-"""Chat with a local copy of the NODES 2026 Aura Agent, with CypherLite embedded in-process.
+"""Chat with a local copy of the NODES 2026 Aura Agent, with Relate embedded in-process.
 
 On start, the graph is loaded into memory from data/*.csv with the same data/load.cypher Aura
 uses (well under a second). The system prompt and tools come from agent/agent.json:
@@ -35,15 +35,15 @@ from strands.tools import PythonAgentTool
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
-# LOAD CSV may read only from this directory. Set before cypherlite opens a database.
-os.environ["CYPHERLITE_LOAD_CSV_DIR"] = str(DATA)
-import cypherlite  # noqa: E402
+# LOAD CSV may read only from this directory. Set before relate opens a database.
+os.environ["RELATE_LOAD_CSV_DIR"] = str(DATA)
+import relate  # noqa: E402
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
 MAX_ROWS = 25
 VERBOSE = "--verbose" in sys.argv
 
-# CypherLite's full-text index matches single whole words only (no wildcards, OR/AND, or
+# Relate's full-text index matches single whole words only (no wildcards, OR/AND, or
 # accent folding), so the speaker lookup matches each word of the input against the
 # accent-folded names instead. With ~120 speakers a scan is instant.
 LOCAL_TEMPLATES = {
@@ -70,13 +70,13 @@ def fold(text: str) -> str:
 
 
 class Graph:
-    """The NODES graph in an in-memory CypherLite database."""
+    """The NODES graph in an in-memory Relate database."""
 
     def __init__(self):
         # The embedded database must stay on the thread that opened it, but the agent calls tools
         # from worker threads. So one dedicated thread opens it and runs every query, in turn.
         self.thread = ThreadPoolExecutor(max_workers=1)
-        self.db = self.thread.submit(cypherlite.connect, ":memory:").result()
+        self.db = self.thread.submit(relate.connect, ":memory:").result()
         self.load()
 
     def execute(self, cypher: str, params: dict | None = None) -> list[dict]:
@@ -96,7 +96,7 @@ class Graph:
         self.thread.shutdown()
 
     def load(self):
-        """Run data/load.cypher, adjusted for CypherLite: local CSV paths and a plain SET for
+        """Run data/load.cypher, adjusted for Relate: local CSV paths and a plain SET for
         embeddings (there's no db.create.setNodeVectorProperty). Then add accent-folded speaker names."""
         script = (DATA / "load.cypher").read_text()
         script = re.sub(r"https://raw\.githubusercontent\.com/[^']*/data/", "", script)
@@ -115,8 +115,19 @@ class Graph:
         return self.execute(cypher, params)[:limit]
 
 
+def plain(value):
+    """Relate's nodes, relationships, and paths as JSON-friendly values, like the Neo4j driver's."""
+    if isinstance(value, relate.Node):
+        return {"labels": list(value.labels), **value.properties}
+    if isinstance(value, relate.Relationship):
+        return {"type": value.type, **value.properties}
+    if isinstance(value, relate.Path):
+        return {"nodes": [plain(n) for n in value.nodes], "relationships": [plain(r) for r in value.relationships]}
+    return str(value)
+
+
 def to_json(rows) -> str:
-    return json.dumps(rows, default=str, ensure_ascii=False)
+    return json.dumps(rows, default=plain, ensure_ascii=False)
 
 
 def make_tool(spec: dict, properties: dict[str, str], run) -> PythonAgentTool:
