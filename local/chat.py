@@ -41,6 +41,9 @@ import relate  # noqa: E402
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
 MAX_ROWS = 25
+# Text2Cypher answers questions like "list every speaker", so it may return the whole graph's
+# worth of rows (~130 speakers, ~100 sessions). Past this, the model is told what it's missing.
+MAX_TEXT2CYPHER_ROWS = 300
 VERBOSE = "--verbose" in sys.argv
 
 # Relate's full-text index matches single whole words only (no wildcards, OR/AND, or
@@ -177,7 +180,8 @@ def text2cypher_tool(graph: Graph, client: OpenAI, spec: dict) -> PythonAgentToo
     instructions = (
         "Write one read-only Cypher query that answers the question, for this graph:\n"
         f"{spec['description']}\n"
-        f"Return at most {MAX_ROWS} rows. Use only the labels, relationships, and properties above. "
+        "Return every row the question asks for: add a LIMIT only when it asks for a few, like \"the top 5\". "
+        "Use only the labels, relationships, and properties above. "
         "Reply with the Cypher only, no explanation and no code fences."
     )
 
@@ -187,7 +191,11 @@ def text2cypher_tool(graph: Graph, client: OpenAI, spec: dict) -> PythonAgentToo
             reply = client.chat.completions.create(model=MODEL, messages=messages).choices[0].message.content
             cypher = re.sub(r"^```\w*\s*|\s*```$", "", reply.strip())
             try:
-                return to_json({"cypher": cypher, "rows": graph.run(cypher)})
+                rows = graph.run(cypher, limit=None)
+                result = {"cypher": cypher, "rows": rows[:MAX_TEXT2CYPHER_ROWS]}
+                if len(rows) > MAX_TEXT2CYPHER_ROWS:
+                    result["note"] = f"Showing the first {MAX_TEXT2CYPHER_ROWS} of {len(rows)} rows."
+                return to_json(result)
             except Exception as err:  # Retry once with the error, the way a person would.
                 error = err
                 messages += [
