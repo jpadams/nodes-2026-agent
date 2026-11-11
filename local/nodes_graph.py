@@ -1,12 +1,14 @@
-"""The parts of the local NODES 2026 agent that don't depend on the agent framework.
+"""The NODES 2026 graph on Relate, for the local agents. Nothing in here knows about agent frameworks.
 
-The *-relate-agent.py scripts import this, then add only their framework: how a tool is
-wrapped, how the model is called, and how the conversation is kept.
+- Graph: the graph in an in-memory Relate database, loaded from data/*.csv with the same
+  data/load.cypher Aura uses (well under a second). Its methods run the Cypher behind each
+  kind of agent.json tool and return the result as JSON text for the model.
+- The helpers below read agent/agent.json: the agent's spec, each tool's arguments as a JSON
+  schema, and the text2cypher instructions.
+- chat_loop(): the command line both agents share.
 
-- Graph: the NODES graph in an in-memory Relate database, loaded from data/*.csv with the
-  same data/load.cypher Aura uses (well under a second).
-- tool_defs(): the tools in agent/agent.json, as plain functions over the graph.
-- run_chat(): the command line: answer one question, or chat until Ctrl-C or Ctrl-D.
+The *-relate-agent.py scripts build their agent and tools on top of this, each the way its
+framework recommends.
 """
 
 import json
@@ -15,7 +17,6 @@ import re
 import sys
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
@@ -26,11 +27,11 @@ os.environ["RELATE_LOAD_CSV_DIR"] = str(DATA)
 import relate  # noqa: E402
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
+VERBOSE = "--verbose" in sys.argv
 MAX_ROWS = 25
 # Text2Cypher answers questions like "list every speaker", so it may return the whole graph's
 # worth of rows (~130 speakers, ~100 sessions). Past this, the model is told what it's missing.
 MAX_TEXT2CYPHER_ROWS = 300
-VERBOSE = "--verbose" in sys.argv
 
 # Relate's full-text index matches single whole words only (no wildcards, OR/AND, or
 # accent folding), so the speaker lookup matches each word of the input against the
@@ -49,6 +50,8 @@ WITH sp, s, times, collect(co.name) AS speakers
 RETURN sp.name AS speaker, s.title AS title, speakers, times ORDER BY speaker, title LIMIT 25
 """,
 }
+# Template parameters the local lookup compares with accent-folded names.
+FOLDED_PARAMETERS = {"sessions-by-speaker": {"name"}}
 
 FOLD_CHARS = str.maketrans({"ł": "l", "Ł": "L", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D", "ß": "ss", "æ": "ae", "Æ": "AE"})
 
@@ -58,11 +61,26 @@ def fold(text: str) -> str:
     return "".join(c for c in decomposed if not unicodedata.combining(c))
 
 
+def plain(value):
+    """Relate's nodes, relationships, and paths as JSON-friendly values, like the Neo4j driver's."""
+    if isinstance(value, relate.Node):
+        return {"labels": list(value.labels), **value.properties}
+    if isinstance(value, relate.Relationship):
+        return {"type": value.type, **value.properties}
+    if isinstance(value, relate.Path):
+        return {"nodes": [plain(n) for n in value.nodes], "relationships": [plain(r) for r in value.relationships]}
+    return str(value)
+
+
+def to_json(rows) -> str:
+    return json.dumps(rows, default=plain, ensure_ascii=False)
+
+
 class Graph:
     """The NODES graph in an in-memory Relate database."""
 
     def __init__(self):
-        # The embedded database must stay on the thread that opened it, but the agent calls tools
+        # The embedded database must stay on the thread that opened it, but agents call tools
         # from worker threads. So one dedicated thread opens it and runs every query, in turn.
         self.thread = ThreadPoolExecutor(max_workers=1)
         self.db = self.thread.submit(relate.connect, ":memory:").result()
@@ -75,7 +93,7 @@ class Graph:
         return self.thread.submit(work).result()
 
     def close(self):
-        """Close and drop the database on its own thread, as it requires."""
+        """Close and drop the database on its own thread."""
 
         def work():
             self.db.close()
@@ -103,126 +121,87 @@ class Graph:
     def run(self, cypher: str, limit: int | None = MAX_ROWS, **params) -> list[dict]:
         return self.execute(cypher, params)[:limit]
 
+    def run_template(self, tool: dict, **params: str) -> str:
+        """A cypherTemplate tool: its Cypher (or the local version) with the model's parameters."""
+        folded = FOLDED_PARAMETERS.get(tool["name"], set())
+        params = {k: fold(v) if k in folded else v for k, v in params.items()}
+        template = LOCAL_TEMPLATES.get(tool["name"], tool["config"]["template"])
+        return to_json(self.run(template, **params))
 
-def plain(value):
-    """Relate's nodes, relationships, and paths as JSON-friendly values, like the Neo4j driver's."""
-    if isinstance(value, relate.Node):
-        return {"labels": list(value.labels), **value.properties}
-    if isinstance(value, relate.Relationship):
-        return {"type": value.type, **value.properties}
-    if isinstance(value, relate.Path):
-        return {"nodes": [plain(n) for n in value.nodes], "relationships": [plain(r) for r in value.relationships]}
-    return str(value)
+    def vector_search(self, tool: dict, embedding: list[float]) -> str:
+        """A similaritySearch tool: query its vector index, then run its post-processing Cypher."""
+        config = tool["config"]
+        cypher = (
+            f"CALL db.index.vector.queryNodes('{config['index']}', {int(config['top_k'])}, $embedding) "
+            f"YIELD node, score {config['post_processing_cypher']}"
+        )
+        return to_json(self.run(cypher, embedding=embedding))
 
-
-def to_json(rows) -> str:
-    return json.dumps(rows, default=plain, ensure_ascii=False)
-
-
-@dataclass
-class ToolDef:
-    """A tool from agent.json: its string arguments (name -> description), and run(**arguments),
-    which returns the result for the model as JSON text."""
-
-    name: str
-    description: str
-    arguments: dict[str, str]
-    run: Callable[..., str]
-
-
-Embed = Callable[[str, str], list[float]]  # (embedding model, text) -> embedding
-Complete = Callable[[list[dict]], str]  # [{"role": ..., "content": ...}] -> the model's reply
+    def run_generated(self, cypher: str) -> str:
+        """Model-written Cypher, for text2cypher, with up to MAX_TEXT2CYPHER_ROWS rows.
+        Raises the database's error if the query fails, so the model can fix it."""
+        rows = self.run(cypher, limit=None)
+        result = {"cypher": cypher, "rows": rows[:MAX_TEXT2CYPHER_ROWS]}
+        if len(rows) > MAX_TEXT2CYPHER_ROWS:
+            result["note"] = f"Showing the first {MAX_TEXT2CYPHER_ROWS} of {len(rows)} rows."
+        return to_json(result)
 
 
-def template_tool(graph: Graph, spec: dict) -> ToolDef:
-    config = spec["config"]
-    template = LOCAL_TEMPLATES.get(spec["name"], config["template"])
-
-    def run(**params) -> str:
-        if spec["name"] == "sessions-by-speaker":
-            params = {k: fold(v) for k, v in params.items()}
-        return to_json(graph.run(template, **params))
-
-    arguments = {p["name"]: p["description"] for p in config["parameters"]}
-    return ToolDef(spec["name"], spec["description"], arguments, run)
+def load_agent_spec() -> dict:
+    """agent/agent.json: the Aura Agent's name, system prompt, and tools."""
+    return json.loads((ROOT / "agent" / "agent.json").read_text())
 
 
-def similarity_tool(graph: Graph, spec: dict, embed: Embed) -> ToolDef:
-    config = spec["config"]
-    cypher = (
-        f"CALL db.index.vector.queryNodes('{config['index']}', {int(config['top_k'])}, $embedding) "
-        f"YIELD node, score {config['post_processing_cypher']}"
-    )
-
-    def run(query: str) -> str:
-        return to_json(graph.run(cypher, embedding=embed(config["model"], query)))
-
-    return ToolDef(spec["name"], spec["description"], {"query": "What to search for, in natural language."}, run)
+def tools_of_type(spec: dict, kind: str) -> list[dict]:
+    return [t for t in spec["tools"] if t["type"] == kind and t.get("enabled", True)]
 
 
-def text2cypher_tool(graph: Graph, spec: dict, complete: Complete) -> ToolDef:
-    instructions = (
+def template_schema(tool: dict, expected: list[str]) -> dict:
+    """A cypherTemplate tool's parameters as a JSON schema, checked against the parameter
+    names the agent's tool function takes, so a change to agent.json fails here, loudly."""
+    names = [p["name"] for p in tool["config"]["parameters"]]
+    if names != expected:
+        raise ValueError(f"{tool['name']} takes {names} in agent.json; the local tool expects {expected}")
+    return string_schema({p["name"]: p["description"] for p in tool["config"]["parameters"]})
+
+
+def string_schema(arguments: dict[str, str]) -> dict:
+    """A JSON schema for required string arguments (name -> description)."""
+    return {
+        "type": "object",
+        "properties": {name: {"type": "string", "description": d} for name, d in arguments.items()},
+        "required": list(arguments),
+    }
+
+
+SIMILARITY_SCHEMA = string_schema({"query": "What to search for, in natural language."})
+TEXT2CYPHER_SCHEMA = string_schema({"question": "The question to answer from the graph."})
+
+
+def text2cypher_instructions(tool: dict) -> str:
+    """The system prompt for writing Cypher, from the text2cypher tool's schema description."""
+    return (
         "Write one read-only Cypher query that answers the question, for this graph:\n"
-        f"{spec['description']}\n"
+        f"{tool['description']}\n"
         "Return every row the question asks for: add a LIMIT only when it asks for a few, like \"the top 5\". "
         "Use only the labels, relationships, and properties above. "
         "Reply with the Cypher only, no explanation and no code fences."
     )
 
-    def run(question: str) -> str:
-        messages = [{"role": "system", "content": instructions}, {"role": "user", "content": question}]
-        for _ in range(2):
-            cypher = re.sub(r"^```\w*\s*|\s*```$", "", complete(messages).strip())
-            try:
-                rows = graph.run(cypher, limit=None)
-                result = {"cypher": cypher, "rows": rows[:MAX_TEXT2CYPHER_ROWS]}
-                if len(rows) > MAX_TEXT2CYPHER_ROWS:
-                    result["note"] = f"Showing the first {MAX_TEXT2CYPHER_ROWS} of {len(rows)} rows."
-                return to_json(result)
-            except Exception as err:  # Retry once with the error, the way a person would.
-                error = err
-                messages += [
-                    {"role": "assistant", "content": cypher},
-                    {"role": "user", "content": f"That failed: {err}. Fix the query."},
-                ]
-        return to_json({"cypher": cypher, "error": str(error)})
 
-    return ToolDef(spec["name"], spec["description"], {"question": "The question to answer from the graph."}, run)
+def cypher_from_reply(reply: str) -> str:
+    """The Cypher in a model's reply, without code fences if it added them anyway."""
+    return re.sub(r"^```\w*\s*|\s*```$", "", reply.strip())
 
 
-def tool_defs(graph: Graph, spec: dict, embed: Embed, complete: Complete) -> list[ToolDef]:
-    """The enabled tools in agent.json (spec), with embed and complete calling the model."""
-    builders = {
-        "cypherTemplate": lambda t: template_tool(graph, t),
-        "similaritySearch": lambda t: similarity_tool(graph, t, embed),
-        "text2cypher": lambda t: text2cypher_tool(graph, t, complete),
-    }
-    return [builders[t["type"]](t) for t in spec["tools"] if t.get("enabled", True)]
-
-
-def show_step(name: str = "", arguments: dict | None = None, result: str | None = None) -> None:
-    """With --verbose, print a tool call (name and arguments) or its result."""
-    if result is None:
-        print(f"  → {name}({json.dumps(arguments, ensure_ascii=False)})")
-    else:
-        print(f"  ← {result[:300]}{'…' if len(result) > 300 else ''}")
-
-
-def run_chat(make_ask: Callable[[Graph, dict], Callable[[str], str]]) -> None:
-    """Load the graph and agent.json, then answer the question on the command line, or chat
-    until Ctrl-C or Ctrl-D. make_ask(graph, spec) builds the agent and returns ask(question),
-    which answers one question, keeping the conversation for follow-ups."""
-    if not os.environ.get("OPENAI_API_KEY"):
-        sys.exit("Set OPENAI_API_KEY first.")
+def chat_loop(spec: dict, ask: Callable[[str], str]) -> None:
+    """Answer the question on the command line and exit, or chat until Ctrl-C or Ctrl-D.
+    ask(question) returns the agent's answer, keeping the conversation for follow-ups."""
     args = [a for a in sys.argv[1:] if a != "--verbose"]
-    spec = json.loads((ROOT / "agent" / "agent.json").read_text())
-    graph = Graph()
     try:
-        ask = make_ask(graph, spec)
         if args:
             print(f"\nagent> {ask(' '.join(args)).strip()}\n")
             return
-
         print(f"{spec['name']} (local, {MODEL}). {spec['description']}")
         print("Ask a question, or press Ctrl-D to quit.\n")
         while True:
@@ -235,5 +214,3 @@ def run_chat(make_ask: Callable[[Graph, dict], Callable[[str], str]]) -> None:
                 print(f"\nagent> {ask(question).strip()}\n")
     except KeyboardInterrupt:  # Ctrl-C, at the prompt or mid-answer
         print()
-    finally:
-        graph.close()

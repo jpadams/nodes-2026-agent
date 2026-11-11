@@ -9,7 +9,17 @@ There are two variants with the same graph, prompt, and tools. Only the agent fr
 | [`strands-relate-agent.py`](strands-relate-agent.py) | [Strands Agents](https://strandsagents.com/) |
 | [`langchain-relate-agent.py`](langchain-relate-agent.py) | [LangChain](https://docs.langchain.com/) |
 
-Both import [`nodes_graph.py`](nodes_graph.py), which holds everything that doesn't depend on the framework: the graph, the tools' queries, and the command line. Each script adds only how its framework wraps the tools, calls the model, and keeps the conversation.
+Each script builds its agent the way its framework recommends:
+
+| | Strands Agents | LangChain |
+|---|---|---|
+| Tools | `@tool` functions, named and described from `agent.json` | `@tool` functions, named and described from `agent.json` |
+| Text2Cypher | An agent as a tool: a specialist agent writes the Cypher | The chat model writes the Cypher |
+| Embeddings | OpenAI client (Strands has no embeddings API) | `init_embeddings` |
+| Conversation | Kept by the `Agent` | `InMemorySaver` checkpointer, one thread |
+| `--verbose` | A `Plugin` with `@hook`s on tool calls | `stream_mode="updates"` |
+
+Both run their Cypher on the graph in [`nodes_graph.py`](nodes_graph.py), the Relate side, which doesn't depend on either framework. It loads the graph, runs each kind of `agent.json` tool's Cypher, and holds the shared command line.
 
 ## Prerequisites
 
@@ -42,7 +52,7 @@ Set `OPENAI_MODEL` to use a different chat model (default `gpt-5.4-mini`).
 - It builds the agent from [`agent/agent.json`](../agent/agent.json):
   - **Cypher templates** run as written, with the model's parameters.
   - **Similarity search** embeds the question with the configured OpenAI model, calls `db.index.vector.queryNodes`, then runs the post-processing Cypher.
-  - **Text2Cypher** asks the model for a read-only Cypher query from the tool's schema description, retrying once if it fails.
+  - **Text2Cypher** asks the model for a read-only Cypher query from the tool's schema description, retrying once with the error if it fails. It returns up to 300 rows, and says so when there are more.
 - Unlike the Aura agent's API, the local chat keeps the conversation, so follow-up questions work.
 
 ## Differences from Aura
