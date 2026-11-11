@@ -50,7 +50,7 @@ Set `OPENAI_MODEL` to use a different chat model (default `gpt-5.4-mini`).
   - **Cypher templates** run as written, with the model's parameters.
   - **Similarity search** embeds the question with the configured OpenAI model, calls `db.index.vector.queryNodes`, then runs the post-processing Cypher.
   - **Text2Cypher** asks the model for a read-only Cypher query from the tool's schema description, retrying once with the error if it fails. It returns up to 300 rows, and says so when there are more.
-- Unlike the Aura agent's API, the local chat keeps the conversation, so follow-up questions work.
+- The local chat keeps the conversation, as the Aura console does, so follow-up questions work.
 
 ## Differences from Aura
 
