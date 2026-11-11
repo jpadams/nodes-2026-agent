@@ -25,15 +25,12 @@ Both run their Cypher on the graph in [`nodes_graph.py`](nodes_graph.py), the Re
 
 - [uv](https://docs.astral.sh/uv/)
 - An OpenAI API key
-- The Relate Python wheels (`relate-db`). Relate isn't on PyPI yet, so download them from its GitHub release into `local/wheels/` (uv picks the one for your platform):
 
-  ```sh
-  gh release download v0.1.2 -R relatedb/relate -p 'relate_db-*.whl' -D local/wheels
-  ```
+On first run, uv installs each script's dependencies, including Relate ([`relate-db`](https://pypi.org/project/relate-db/) on PyPI).
 
 ## Run
 
-From the repo root (either script takes the same arguments):
+Either script takes the same arguments:
 
 ```sh
 export OPENAI_API_KEY=sk-...
@@ -57,4 +54,4 @@ Set `OPENAI_MODEL` to use a different chat model (default `gpt-5.4-mini`).
 
 ## Differences from Aura
 
-- `sessions-by-speaker` uses a local Cypher query instead of the full-text index. Relate's full-text search matches single whole words only (no wildcards, `OR`/`AND`, or accent folding), so the local version matches every word of the name against the accent-folded speaker names instead.
+- `sessions-by-speaker` uses a local Cypher query instead of the full-text index. Relate's full-text search handles `AND`, `OR`, and fuzzy `~` terms, but not wildcards or accent folding, so Aura's query would miss names like "Kollegg", "Eifrém", or "andreas sateras". The local version matches every word of the name against the accent-folded speaker names instead. If that finds no one, it corrects typos and tries again: each word of 3 or more letters becomes the closest word in a speaker's name, so "Kolleger" finds Andreas Kollegger, as on Aura. (Relate accepts `~` fuzzy terms but doesn't match misspellings yet, so this runs in Python.)
