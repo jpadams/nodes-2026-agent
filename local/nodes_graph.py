@@ -11,6 +11,7 @@ The *-relate-agent.py scripts build their agent and tools on top of this, each t
 framework recommends.
 """
 
+import difflib
 import json
 import os
 import re
@@ -53,6 +54,10 @@ RETURN sp.name AS speaker, s.title AS title, speakers, times ORDER BY speaker, t
 }
 # Template parameters the local lookup compares with accent-folded names.
 FOLDED_PARAMETERS = {"sessions-by-speaker": {"name"}}
+# Template parameters that get a second try with typos corrected when the first finds nothing,
+# as Aura's fuzzy full-text query allows ("Kolleger" finds Kollegger). Relate's full-text search
+# accepts ~ but doesn't match misspellings, so the correction is done here, in Python.
+TYPO_TOLERANT_PARAMETERS = {"sessions-by-speaker": "name"}
 
 FOLD_CHARS = str.maketrans({"ł": "l", "Ł": "L", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D", "ß": "ss", "æ": "ae", "Æ": "AE"})
 
@@ -118,6 +123,19 @@ class Graph:
             "UNWIND $rows AS row MATCH (p:Speaker {name: row.name}) SET p.nameFolded = row.folded",
             {"rows": [{"name": n, "folded": fold(n)} for n in names]},
         )
+        self.name_words = sorted({w for n in names for w in fold(n).lower().split()})
+
+    def correct_typos(self, name: str) -> str | None:
+        """name with each word of 3+ letters swapped for the closest word in a speaker's name,
+        or None if a word has no close match or nothing changed."""
+        corrected = []
+        for word in fold(name).lower().split():
+            close = difflib.get_close_matches(word, self.name_words, n=1, cutoff=0.8) if len(word) >= 3 else []
+            if len(word) >= 3 and not close:
+                return None
+            corrected.append(close[0] if close else word)
+        corrected = " ".join(corrected)
+        return corrected if corrected != fold(name).lower() else None
 
     def run(self, cypher: str, limit: int | None = MAX_ROWS, **params) -> list[dict]:
         return self.execute(cypher, params)[:limit]
@@ -127,7 +145,11 @@ class Graph:
         folded = FOLDED_PARAMETERS.get(tool["name"], set())
         params = {k: fold(v) if k in folded else v for k, v in params.items()}
         template = LOCAL_TEMPLATES.get(tool["name"], tool["config"]["template"])
-        return to_json(self.run(template, **params))
+        rows = self.run(template, **params)
+        typo_tolerant = TYPO_TOLERANT_PARAMETERS.get(tool["name"])
+        if not rows and typo_tolerant and (corrected := self.correct_typos(params[typo_tolerant])):
+            rows = self.run(template, **{**params, typo_tolerant: corrected})
+        return to_json(rows)
 
     def vector_search(self, tool: dict, embedding: list[float]) -> str:
         """A similaritySearch tool: query its vector index, then run its post-processing Cypher."""
