@@ -7,7 +7,7 @@
 # # The path is relative to where you run uv, so run from the repo root.
 # find-links = ["local/wheels"]
 # ///
-"""Chat with a local copy of the NODES 2026 Aura Agent, with Relate embedded in-process.
+"""Chat with a local copy of the NODES 2026 Aura Agent on Strands Agents, with Relate embedded in-process.
 
 On start, the graph is loaded into memory from data/*.csv with the same data/load.cypher Aura
 uses (well under a second). The system prompt and tools come from agent/agent.json:
@@ -16,7 +16,7 @@ uses (well under a second). The system prompt and tools come from agent/agent.js
 - text2cypher asks the model to write a read-only Cypher query from the tool's schema description.
 
 Needs OPENAI_API_KEY.
-Usage: uv run local/chat.py [--verbose] ["question"]
+Usage: uv run local/strands-relate-agent.py [--verbose] ["question"]
   With a question: answer it and exit. Without: chat until Ctrl-C or Ctrl-D.
 """
 
