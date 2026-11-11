@@ -33,9 +33,10 @@ MAX_ROWS = 25
 # worth of rows (~130 speakers, ~100 sessions). Past this, the model is told what it's missing.
 MAX_TEXT2CYPHER_ROWS = 300
 
-# Relate's full-text index matches single whole words only (no wildcards, OR/AND, or
-# accent folding), so the speaker lookup matches each word of the input against the
-# accent-folded names instead. With ~120 speakers a scan is instant.
+# Relate's full-text search handles AND, OR, and fuzzy (~) terms, but not wildcards or accent
+# folding, so Aura's speaker lookup misses partial and differently-accented names on it. The
+# local lookup matches each word of the input against the accent-folded names instead. With
+# ~130 speakers a scan is instant.
 LOCAL_TEMPLATES = {
     "sessions-by-speaker": """
 WITH [w IN split(toLower($name), ' ') WHERE w <> ''] AS words WHERE size(words) > 0

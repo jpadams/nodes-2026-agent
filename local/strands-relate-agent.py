@@ -1,11 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["strands-agents[openai]==1.64.0", "openai==3.49.0", "relate-db==0.1.2"]
-#
-# [tool.uv]
-# # Relate isn't on PyPI yet: its wheels come from the GitHub release (see local/README.md).
-# # The path is relative to where you run uv, so run from the repo root.
-# find-links = ["local/wheels"]
+# dependencies = ["strands-agents[openai]==1.64.0", "openai==3.49.0", "relate-db==1.0.0"]
 # ///
 """Chat with a local copy of the NODES 2026 Aura Agent, built with Strands Agents on a Relate graph.
 
