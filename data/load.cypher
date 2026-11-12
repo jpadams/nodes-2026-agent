@@ -36,7 +36,7 @@ MERGE (sl:Slot {id: row.id})
 SET sl.startTime = start,
     sl.durationMinutes = toInteger(row.durationMinutes),
     sl.endTime = start + duration({minutes: toInteger(row.durationMinutes)}),
-    // What the agent shows people, e.g. "Wed 11 Nov, 18:00 UTC".
+    // What the agent shows people, e.g. "Thu 12 Nov, 02:00 UTC".
     sl.displayTime = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][start.dayOfWeek - 1] + ' ' + toString(start.day) + ' '
       + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][start.month - 1] + ', '
       + right('0' + toString(start.hour), 2) + ':' + right('0' + toString(start.minute), 2) + ' UTC'

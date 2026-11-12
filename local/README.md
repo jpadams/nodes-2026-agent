@@ -35,8 +35,8 @@ Either script takes the same arguments:
 ```sh
 export OPENAI_API_KEY=sk-...
 uv run local/strands-relate-agent.py                         # chat until Ctrl-C or Ctrl-D
-uv run local/strands-relate-agent.py "What's on Wednesday?"  # answer one question and exit
-uv run local/langchain-relate-agent.py "What's on Wednesday?"
+uv run local/strands-relate-agent.py "What's on at 18:00 UTC?"  # answer one question and exit
+uv run local/langchain-relate-agent.py "What's on at 18:00 UTC?"
 ```
 
 Add `--verbose` to see each tool call and the Cypher it ran.

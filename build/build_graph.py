@@ -18,6 +18,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import neo4j
 import openpyxl
@@ -146,11 +147,16 @@ def session_id(v) -> str:
     return str(int(float(v)))
 
 
+# The sheet's "Scheduled At" has no time zone; it's Pacific time (PST in November).
+SHEET_TZ = ZoneInfo("America/Los_Angeles")
+
+
 def iso_utc(v) -> str | None:
     if not v:
         return None
     dt = v if isinstance(v, datetime) else datetime.fromisoformat(str(v))
-    return dt.replace(tzinfo=timezone.utc, microsecond=0).isoformat().replace("+00:00", "Z")
+    local = dt.replace(tzinfo=SHEET_TZ, microsecond=0)
+    return local.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 # Letters NFKD doesn't decompose to ASCII.

@@ -48,7 +48,7 @@ One row per speaker per session id, with `Session Id`, `FirstName`, `LastName`, 
 - Rows with the same title and description are one talk broadcast in several slots. Each becomes a `Slot`, and the lowest session id becomes the talk's id.
 - Rows with no title under an existing session id are co-speakers.
 - Speakers are keyed by a slug of their full name (`andrew-ng`). `Speaker Id` is ignored, because it's per submission and one person can have several.
-- `Scheduled At` is UTC.
+- `Scheduled At` is Pacific time (PST in November), with no time zone in the cell. The build converts it to UTC.
 
 ## Tuning extraction
 
@@ -67,5 +67,5 @@ One row per speaker per session id, with `Session Id`, `FirstName`, `LastName`, 
 
 - **Speaker lookup (`sessions-by-speaker`)** queries the `speaker_names` full-text index (`standard-folding`, so accents are optional). Each word of the name must match, as itself, as a prefix (`kol*`), or with small typos: one edit for words of 3–7 letters, two for 8 or more, none for 1–2 letters. Two edits on short words matched the wrong people ("tom" found Tony and Jim, "andreas" found Andrew), and fuzzy one- or two-letter words match almost anyone. Lucene syntax characters are stripped from the input first, so a name can't break the query.
 - **Every presenter is returned** with each session (`speakers`), so the agent can answer "who is X presenting with".
-- **Times** come from `Slot.displayTime` (like "Wed 11 Nov, 18:00 UTC"), and the system prompt tells the agent to copy them as written. `Slot.startTime` is only for filtering and sorting. A talk broadcast in several slots lists them all.
+- **Times** come from `Slot.displayTime` (like "Thu 12 Nov, 02:00 UTC"), and the system prompt tells the agent to copy them as written. `Slot.startTime` is only for filtering and sorting. A talk broadcast in several slots lists them all.
 - **Pronouns:** the system prompt tells the agent to refer to speakers by name or as "they", and not to guess anyone's pronouns.
