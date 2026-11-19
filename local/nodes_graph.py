@@ -1,8 +1,8 @@
 """The NODES 2026 graph on Relate, for the local agents. Nothing in here knows about agent frameworks.
 
-- Graph: the graph in an in-memory Relate database, loaded from data/*.csv with the same
-  data/load.cypher Aura uses (well under a second). Its methods run the Cypher behind each
-  kind of agent.json tool and return the result as JSON text for the model.
+- Graph: the graph in data/nodes-2026.rl, a single-file Relate database built from data/*.csv
+  (see build-relate-db.py), opened read-only. Its methods run the Cypher behind each kind of
+  agent.json tool and return the result as JSON text for the model.
 - The helpers below read agent/agent.json: the agent's spec, each tool's arguments as a JSON
   schema, and the text2cypher instructions.
 - chat_loop(): the command line both agents share.
@@ -21,11 +21,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Callable
 
+import relate
+
 ROOT = Path(__file__).resolve().parent.parent
-DATA = ROOT / "data"
-# LOAD CSV may read only from this directory. Set before relate opens a database.
-os.environ["RELATE_LOAD_CSV_DIR"] = str(DATA)
-import relate  # noqa: E402
+DATABASE = ROOT / "data" / "nodes-2026.rl"
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
 VERBOSE = "--verbose" in sys.argv
@@ -83,14 +82,19 @@ def to_json(rows) -> str:
 
 
 class Graph:
-    """The NODES graph in an in-memory Relate database."""
+    """The NODES graph, from data/nodes-2026.rl."""
 
-    def __init__(self):
+    def __init__(self, path: Path = DATABASE):
+        if not path.exists():
+            raise FileNotFoundError(f"{path} is missing: build it with `uv run local/build-relate-db.py`")
         # The embedded database must stay on the thread that opened it, but agents call tools
         # from worker threads. So one dedicated thread opens it and runs every query, in turn.
+        # Read-only, so the agents never change the committed file.
         self.thread = ThreadPoolExecutor(max_workers=1)
-        self.db = self.thread.submit(relate.connect, ":memory:").result()
-        self.load()
+        self.db = self.thread.submit(relate.connect, str(path), read_only=True).result()
+        names = self.run("MATCH (p:Speaker) RETURN p.nameFolded AS name", limit=None)
+        # Every word in a speaker's name, for correct_typos().
+        self.name_words = sorted({w for r in names for w in r["name"].lower().split()})
 
     def execute(self, cypher: str, params: dict | None = None) -> list[dict]:
         def work():
@@ -99,7 +103,7 @@ class Graph:
         return self.thread.submit(work).result()
 
     def close(self):
-        """Close and drop the database on its own thread."""
+        """Close the database on its own thread."""
 
         def work():
             self.db.close()
@@ -107,23 +111,6 @@ class Graph:
 
         self.thread.submit(work).result()
         self.thread.shutdown()
-
-    def load(self):
-        """Run data/load.cypher, adjusted for Relate: local CSV paths and a plain SET for
-        embeddings (there's no db.create.setNodeVectorProperty). Then add accent-folded speaker names."""
-        script = (DATA / "load.cypher").read_text()
-        script = re.sub(r"https://raw\.githubusercontent\.com/[^']*/data/", "", script)
-        script = re.sub(r"CALL db\.create\.setNodeVectorProperty\(c, 'embedding', (.*)\);", r"SET c.embedding = \1;", script)
-        # Statements end with ; at the end of a line, as in neo4j-cli.
-        for statement in re.split(r";[ \t]*$", script, flags=re.M):
-            if any(line.strip() and not line.strip().startswith("//") for line in statement.splitlines()):
-                self.execute(statement)
-        names = [r["name"] for r in self.run("MATCH (p:Speaker) RETURN p.name AS name", limit=None)]
-        self.execute(
-            "UNWIND $rows AS row MATCH (p:Speaker {name: row.name}) SET p.nameFolded = row.folded",
-            {"rows": [{"name": n, "folded": fold(n)} for n in names]},
-        )
-        self.name_words = sorted({w for n in names for w in fold(n).lower().split()})
 
     def correct_typos(self, name: str) -> str | None:
         """name with each word of 3+ letters swapped for the closest word in a speaker's name,

@@ -4,6 +4,7 @@ This repo contains:
 
 - `data/*.csv`: every [NODES 2026](https://neo4j.com/nodes/) session, with its speaker, track, topics, use cases, and time slots. Each session has one embedded text chunk (OpenAI `text-embedding-3-small`, 1536 dims, `;`-separated) and the technologies, concepts, organizations, and domains an LLM extracted from it.
 - `data/load.cypher`: builds the graph in Aura straight from this repo's raw GitHub URLs. It's safe to re-run.
+- `data/nodes-2026.rl`: the same graph as a single [Relate](https://relatedb.ai/) database file, built from the CSVs by `local/build-relate-db.py`, for the local agents.
 - `build/`: how the CSVs were made, with [neo4j-graphrag](https://neo4j.com/docs/neo4j-graphrag-python/). You don't need to run it.
 - `agent/agent.json`: the Aura Agent definition (system prompt + tools)
 - `local/`: run the same agent locally on [Relate](https://relatedb.ai/) and OpenAI, with Strands Agents or LangChain and no Aura account. See [local/README.md](local/README.md).

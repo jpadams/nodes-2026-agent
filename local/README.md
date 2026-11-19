@@ -1,6 +1,6 @@
 # Run the NODES 2026 agent locally
 
-A local copy of the Aura Agent: the same graph, system prompt, and tools, with [Relate](https://relatedb.ai/) (an embeddable graph database)  running inside the app, plus OpenAI. There's no Aura account, database server, or setup step: each run loads the graph into memory from `data/*.csv` in well under a second.
+A local copy of the Aura Agent: the same graph, system prompt, and tools, with [Relate](https://relatedb.ai/) (an embeddable graph database) running inside the app, plus OpenAI. There's no Aura account, database server, or setup step: the whole graph, with its indexes and embeddings, is one 1.6 MB file in the repo, [`data/nodes-2026.rl`](../data/nodes-2026.rl), which opens in a few hundredths of a second.
 
 There are two variants with the same graph, prompt, and tools. Only the agent framework differs:
 
@@ -19,7 +19,7 @@ Each script builds its agent the way its framework recommends:
 | Conversation | Kept by the `Agent` | `InMemorySaver` checkpointer, one thread |
 | `--verbose` | A `Plugin` with `@hook`s on tool calls | `stream_mode="updates"` |
 
-Both run their Cypher on the graph in [`nodes_graph.py`](nodes_graph.py), the Relate side, which doesn't depend on either framework. It loads the graph, runs each kind of `agent.json` tool's Cypher, and holds the shared command line.
+Both run their Cypher on the graph in [`nodes_graph.py`](nodes_graph.py), the Relate side, which doesn't depend on either framework. It opens the graph, runs each kind of `agent.json` tool's Cypher, and holds the shared command line.
 
 ## Prerequisites
 
@@ -45,12 +45,26 @@ Set `OPENAI_MODEL` to use a different chat model (default `gpt-5.4-mini`).
 
 ## How it works
 
-- On start, the agent opens an in-memory Relate database and runs [`data/load.cypher`](../data/load.cypher), the same script Aura uses, with small changes for Relate: `LOAD CSV` reads the local CSVs instead of GitHub, embeddings are stored with a plain `SET`, and each speaker gets an accent-folded `nameFolded`.
+- On start, the agent opens `data/nodes-2026.rl` read-only, so it never changes the file. Text2Cypher can't write to the graph either: a write query fails like any other bad query.
 - It builds the agent from [`agent/agent.json`](../agent/agent.json):
   - **Cypher templates** run as written, with the model's parameters.
   - **Similarity search** embeds the question with the configured OpenAI model, calls `db.index.vector.queryNodes`, then runs the post-processing Cypher.
   - **Text2Cypher** asks the model for a read-only Cypher query from the tool's schema description, retrying once with the error if it fails. It returns up to 300 rows, and says so when there are more.
 - The local chat keeps the conversation, as the Aura console does, so follow-up questions work.
+
+## Rebuild the graph file
+
+`data/nodes-2026.rl` is built from `data/*.csv`, so rebuild it when they change:
+
+```sh
+uv run local/build-relate-db.py
+```
+
+It runs [`data/load.cypher`](../data/load.cypher), the same script Aura uses, with small changes for Relate: `LOAD CSV` reads the local CSVs instead of GitHub, embeddings are stored with a plain `SET`, and each speaker gets an accent-folded `nameFolded`.
+
+It needs the [`relate` CLI](https://relatedb.ai/) as well as uv. The load runs in a temporary directory store, then `relate clone` copies it into the `.rl` file. A `.rl` file keeps the space of files it no longer needs, like the write-ahead log of the load, so loading straight into one gives a 7.9 MB file; the clone is 1.6 MB.
+
+Each build gives a different file, even from the same CSVs, so only rebuild and commit it when the data changes.
 
 ## Differences from Aura
 
