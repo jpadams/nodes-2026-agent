@@ -2,9 +2,9 @@
 # requires-python = ">=3.10"
 # dependencies = ["langchain==1.5.0", "langchain-openai==1.7.4", "relate-db==1.0.0"]
 # ///
-"""Chat with a local copy of the NODES 2026 Aura Agent, built with LangChain on a Relate graph.
+"""Chat with the NODES 2026 agent, built with LangChain on a Relate graph.
 
-The agent's system prompt and tools come from agent/agent.json. Each tool is a LangChain @tool,
+The agent's system prompt and tools come from agent.json. Each tool is a LangChain @tool,
 named and described as in agent.json, that runs its Cypher on the graph (see nodes_graph.py):
 - cypherTemplate: runs the template with the model's parameters.
 - similaritySearch: embeds the query with the configured embedding model, then searches the
@@ -15,7 +15,7 @@ create_agent runs the agent, a checkpointer keeps the conversation, and --verbos
 step as it happens.
 
 Needs OPENAI_API_KEY.
-Usage: uv run local/langchain-relate-agent.py [--verbose] ["question"]
+Usage: uv run langchain-relate-agent.py [--verbose] ["question"]
   With a question: answer it and exit. Without: chat until Ctrl-C or Ctrl-D.
 """
 

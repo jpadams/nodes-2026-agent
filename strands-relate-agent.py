@@ -2,19 +2,18 @@
 # requires-python = ">=3.10"
 # dependencies = ["strands-agents[openai]==1.64.0", "openai==3.49.0", "relate-db==1.0.0"]
 # ///
-"""Chat with a local copy of the NODES 2026 Aura Agent, built with Strands Agents on a Relate graph.
+"""Chat with the NODES 2026 agent, built with Strands Agents on a Relate graph.
 
-The agent's system prompt and tools come from agent/agent.json. Each tool is a Strands @tool,
+The agent's system prompt and tools come from agent.json. Each tool is a Strands @tool,
 named and described as in agent.json, that runs its Cypher on the graph (see nodes_graph.py):
 - cypherTemplate: runs the template with the model's parameters.
-- similaritySearch: embeds the query with OpenAI (Strands has no embeddings API, so this calls
-  the OpenAI client directly), then searches the vector index.
+- similaritySearch: embeds the query with the OpenAI client, then searches the vector index.
 - text2cypher: an agent as a tool. A specialist Strands agent writes the Cypher; if the query
   fails, it gets the error and one more try.
 The Strands agent keeps the conversation, and --verbose adds a plugin that prints each tool call.
 
 Needs OPENAI_API_KEY.
-Usage: uv run local/strands-relate-agent.py [--verbose] ["question"]
+Usage: uv run strands-relate-agent.py [--verbose] ["question"]
   With a question: answer it and exit. Without: chat until Ctrl-C or Ctrl-D.
 """
 

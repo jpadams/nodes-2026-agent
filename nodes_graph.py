@@ -1,9 +1,9 @@
-"""The NODES 2026 graph on Relate, for the local agents. Nothing in here knows about agent frameworks.
+"""The NODES 2026 graph on Relate, for the agents. Nothing in here knows about agent frameworks.
 
-- Graph: the graph in data/nodes-2026.rl, a single-file Relate database built from data/*.csv
-  (see build-relate-db.py), opened read-only. Its methods run the Cypher behind each kind of
-  agent.json tool and return the result as JSON text for the model.
-- The helpers below read agent/agent.json: the agent's spec, each tool's arguments as a JSON
+- Graph: the graph in nodes-2026.rl, a single-file Relate database, opened read-only. Its
+  methods run the Cypher behind each kind of agent.json tool and return the result as JSON
+  text for the model.
+- The helpers below read agent.json: the agent's spec, each tool's arguments as a JSON
   schema, and the text2cypher instructions.
 - chat_loop(): the command line both agents share.
 
@@ -23,8 +23,8 @@ from typing import Callable
 
 import relate
 
-ROOT = Path(__file__).resolve().parent.parent
-DATABASE = ROOT / "data" / "nodes-2026.rl"
+ROOT = Path(__file__).resolve().parent
+DATABASE = ROOT / "nodes-2026.rl"
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-mini")
 VERBOSE = "--verbose" in sys.argv
@@ -33,10 +33,8 @@ MAX_ROWS = 25
 # worth of rows (~130 speakers, ~100 sessions). Past this, the model is told what it's missing.
 MAX_TEXT2CYPHER_ROWS = 300
 
-# Relate's full-text search handles AND, OR, and fuzzy (~) terms, but not wildcards or accent
-# folding, so Aura's speaker lookup misses partial and differently-accented names on it. The
-# local lookup matches each word of the input against the accent-folded names instead. With
-# ~130 speakers a scan is instant.
+# Speaker lookup: every word of the input against the accent-folded names, so "Eifrém" finds
+# Eifrem and "kollegg" finds Kollegger.
 LOCAL_TEMPLATES = {
     "sessions-by-speaker": """
 WITH [w IN split(toLower($name), ' ') WHERE w <> ''] AS words WHERE size(words) > 0
@@ -51,11 +49,10 @@ WITH sp, s, times, collect(co.name) AS speakers
 RETURN sp.name AS speaker, s.title AS title, speakers, times ORDER BY speaker, title LIMIT 25
 """,
 }
-# Template parameters the local lookup compares with accent-folded names.
+# Template parameters compared with accent-folded names.
 FOLDED_PARAMETERS = {"sessions-by-speaker": {"name"}}
 # Template parameters that get a second try with typos corrected when the first finds nothing,
-# as Aura's fuzzy full-text query allows ("Kolleger" finds Kollegger). Relate's full-text search
-# accepts ~ but doesn't match misspellings, so the correction is done here, in Python.
+# so "Kolleger" finds Kollegger.
 TYPO_TOLERANT_PARAMETERS = {"sessions-by-speaker": "name"}
 
 FOLD_CHARS = str.maketrans({"ł": "l", "Ł": "L", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D", "ß": "ss", "æ": "ae", "Æ": "AE"})
@@ -82,14 +79,12 @@ def to_json(rows) -> str:
 
 
 class Graph:
-    """The NODES graph, from data/nodes-2026.rl."""
+    """The NODES graph, from nodes-2026.rl."""
 
     def __init__(self, path: Path = DATABASE):
-        if not path.exists():
-            raise FileNotFoundError(f"{path} is missing: build it with `uv run local/build-relate-db.py`")
         # The embedded database must stay on the thread that opened it, but agents call tools
         # from worker threads. So one dedicated thread opens it and runs every query, in turn.
-        # Read-only, so the agents never change the committed file.
+        # Read-only, so the agents never change the file.
         self.thread = ThreadPoolExecutor(max_workers=1)
         self.db = self.thread.submit(relate.connect, str(path), read_only=True).result()
         names = self.run("MATCH (p:Speaker) RETURN p.nameFolded AS name", limit=None)
@@ -128,7 +123,7 @@ class Graph:
         return self.execute(cypher, params)[:limit]
 
     def run_template(self, tool: dict, **params: str) -> str:
-        """A cypherTemplate tool: its Cypher (or the local version) with the model's parameters."""
+        """A cypherTemplate tool: its Cypher (or its LOCAL_TEMPLATES version) with the model's parameters."""
         folded = FOLDED_PARAMETERS.get(tool["name"], set())
         params = {k: fold(v) if k in folded else v for k, v in params.items()}
         template = LOCAL_TEMPLATES.get(tool["name"], tool["config"]["template"])
@@ -158,8 +153,8 @@ class Graph:
 
 
 def load_agent_spec() -> dict:
-    """agent/agent.json: the Aura Agent's name, system prompt, and tools."""
-    return json.loads((ROOT / "agent" / "agent.json").read_text())
+    """agent.json: the agent's name, system prompt, and tools."""
+    return json.loads((ROOT / "agent.json").read_text())
 
 
 def tools_of_type(spec: dict, kind: str) -> list[dict]:
@@ -171,7 +166,7 @@ def template_schema(tool: dict, expected: list[str]) -> dict:
     names the agent's tool function takes, so a change to agent.json fails here, loudly."""
     names = [p["name"] for p in tool["config"]["parameters"]]
     if names != expected:
-        raise ValueError(f"{tool['name']} takes {names} in agent.json; the local tool expects {expected}")
+        raise ValueError(f"{tool['name']} takes {names} in agent.json; the tool function expects {expected}")
     return string_schema({p["name"]: p["description"] for p in tool["config"]["parameters"]})
 
 
@@ -212,7 +207,7 @@ def chat_loop(spec: dict, ask: Callable[[str], str]) -> None:
         if args:
             print(f"\nagent> {ask(' '.join(args)).strip()}\n")
             return
-        print(f"{spec['name']} (local, {MODEL}). {spec['description']}")
+        print(f"{spec['name']} ({MODEL}). {spec['description']}")
         print("Ask a question, or press Ctrl-D to quit.\n")
         while True:
             try:
