@@ -17,6 +17,9 @@ import unicodedata
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+if not os.environ.get("OPENAI_API_KEY"):
+    sys.exit("OPENAI_API_KEY is not set. Run: export OPENAI_API_KEY=sk-...")
+
 import relate
 from openai import OpenAI
 from strands import Agent, tool
